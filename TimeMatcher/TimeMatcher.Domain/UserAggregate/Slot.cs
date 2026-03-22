@@ -1,4 +1,6 @@
-namespace TimeMatcher.Domain;
+using TimeMatcher.Domain.MeetingAggregate;
+
+namespace TimeMatcher.Domain.UserAggregate;
 
 public class Slot
 {
@@ -8,5 +10,4 @@ public class Slot
     public Ability Ability { get; set; }
     public Guid CalendarId { get; init; }
     public Meeting? Meeting { get; set; }
-    
 }
