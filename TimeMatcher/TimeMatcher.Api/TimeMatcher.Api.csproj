@@ -9,7 +9,7 @@
     <ItemGroup>
       <ProjectReference Include="..\TimeMatcher.Application\TimeMatcher.Application.csproj" />
       <ProjectReference Include="..\TimeMatcher.Domain\TimeMatcher.Domain.csproj" />
-      <ProjectReference Include="..\TimeMatcher.Infrastracture\TimeMatcher.Infrastracture.csproj" />
+      <ProjectReference Include="..\TimeMatcher.Infrastructure\TimeMatcher.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

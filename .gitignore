@@ -58,3 +58,22 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Visual Studio / VS Code 
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Database files (SQLite)
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-journal
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
