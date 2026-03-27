@@ -16,6 +16,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .Property(u => u.Email)
             .IsRequired()
             .HasMaxLength(150);
+        builder.HasIndex(u => u.Email).IsUnique();
 
         builder.HasOne(u => u.Calendar)
             .WithOne()
