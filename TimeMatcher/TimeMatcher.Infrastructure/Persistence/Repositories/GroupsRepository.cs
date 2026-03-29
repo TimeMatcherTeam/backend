@@ -23,4 +23,9 @@ public class GroupsRepository: IGroupsRepository
     {
         throw new NotImplementedException();
     }
+
+    public async Task SaveChanges()
+    {
+        throw new NotImplementedException();
+    }
 }

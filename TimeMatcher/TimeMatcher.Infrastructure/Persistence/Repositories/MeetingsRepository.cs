@@ -23,4 +23,9 @@ public class MeetingsRepository:IMeetingsRepository
     {
         throw new NotImplementedException();
     }
+
+    public async Task SaveChanges()
+    {
+        throw new NotImplementedException();
+    }
 }

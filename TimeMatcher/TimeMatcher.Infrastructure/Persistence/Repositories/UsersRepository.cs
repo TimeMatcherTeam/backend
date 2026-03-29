@@ -28,4 +28,9 @@ public class UsersRepository: IUsersRepository
     {
         throw new NotImplementedException();
     }
+
+    public async Task SaveChanges()
+    {
+        throw new NotImplementedException();
+    }
 }

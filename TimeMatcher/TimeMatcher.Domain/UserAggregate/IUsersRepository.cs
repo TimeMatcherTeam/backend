@@ -7,5 +7,5 @@ public interface IUsersRepository
     public Task<Calendar> GetCalendar(Guid userId);
     public Task<User> Create(User user);
     public Task Delete(Guid id);
-    
+    public Task SaveChanges();
 }

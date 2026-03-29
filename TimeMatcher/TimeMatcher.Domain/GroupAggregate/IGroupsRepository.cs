@@ -6,4 +6,5 @@ public interface IGroupsRepository
     public Task<Group> Create(Group group);
     public Task Delete(Guid id);
     public Task<Group[]> GetUserGroups(Guid userId);
+    public Task SaveChanges();
 }

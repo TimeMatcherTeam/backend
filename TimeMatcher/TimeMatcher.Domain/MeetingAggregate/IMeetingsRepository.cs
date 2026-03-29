@@ -6,4 +6,5 @@ public interface IMeetingsRepository
     public Task<Meeting> Create(Meeting meeting);
     public Task Delete(Guid id);
     public Task<Meeting[]> GetUserMeetings(Guid userId);
+    public Task SaveChanges();
 }
