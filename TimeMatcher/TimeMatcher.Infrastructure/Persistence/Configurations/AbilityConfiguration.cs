@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TimeMatcher.Domain.UserAggregate;
+using TimeMatcher.Domain.AbilityAggregate;
 
 namespace TimeMatcher.Infrastructure.Persistence.Configurations;
 

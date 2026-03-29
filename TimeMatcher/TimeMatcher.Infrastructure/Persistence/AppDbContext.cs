@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TimeMatcher.Domain.AbilityAggregate;
 using TimeMatcher.Domain.UserAggregate;
 using TimeMatcher.Domain.GroupAggregate;
 using TimeMatcher.Domain.MeetingAggregate;

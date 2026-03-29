@@ -1,3 +1,4 @@
+using TimeMatcher.Domain.AbilityAggregate;
 using TimeMatcher.Domain.MeetingAggregate;
 
 namespace TimeMatcher.Domain.UserAggregate;

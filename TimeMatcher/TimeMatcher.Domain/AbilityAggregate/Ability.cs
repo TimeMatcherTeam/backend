@@ -1,4 +1,4 @@
-﻿namespace TimeMatcher.Domain.UserAggregate;
+﻿namespace TimeMatcher.Domain.AbilityAggregate;
 
 public class Ability
 {
