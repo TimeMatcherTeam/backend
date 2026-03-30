@@ -1,4 +1,5 @@
 using FluentResults;
+using Microsoft.EntityFrameworkCore;
 using TimeMatcher.Application.Errors;
 using TimeMatcher.Application.Requests.Group;
 using TimeMatcher.Application.Responses.Group;
@@ -17,7 +18,9 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
         if (group is null) return Result.Fail(AppError.NotFound());
         if (!group.GroupParticipants.Any(gp => gp.UserId == requestUserId)) return Result.Fail(AppError.Forbidden());
         var userIds = group.GroupParticipants.Select(gp => gp.UserId);
-        var users = usersRepository.GetAll().Where(x => userIds.Contains(x.Id)).ToDictionary(u => u.Id);
+        var users = await usersRepository.GetAll()
+            .Where(x => userIds.Contains(x.Id))
+            .ToDictionaryAsync(u => u.Id);
         return Result.Ok(new GroupResponse
         {
             Id = group.Id,
