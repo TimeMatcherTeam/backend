@@ -29,7 +29,7 @@ public class UsersController
     }
     
     [HttpGet("{user-id}/calendar")]
-    public async Task<ActionResult<CalendarResponse>> GetCalendar([FromRoute(Name="user-id")] Guid userId)
+    public async Task<ActionResult<CalendarResponse>> GetCalendar([FromRoute(Name="user-id")] Guid userId, [FromQuery] RequestedPeriod period)
     {
         throw new NotImplementedException();
     }
