@@ -18,16 +18,15 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
         if (group is null) return Result.Fail(AppError.NotFound());
         if (!group.GroupParticipants.Any(gp => gp.UserId == requestUserId)) return Result.Fail(AppError.Forbidden());
         var userIds = group.GroupParticipants.Select(gp => gp.UserId);
-        var users = await usersRepository.GetAll()
-            .Where(x => userIds.Contains(x.Id))
-            .ToDictionaryAsync(u => u.Id);
+        var users = await usersRepository.GetUsersByIds(userIds);
+        var usersDictionary = users.ToDictionary(u => u.Id);
         return Result.Ok(new GroupResponse
         {
             Id = group.Id,
             Name = group.Name,
             Participants = group.GroupParticipants.Select(gp =>
             {
-                var user = users[gp.UserId];
+                var user = usersDictionary[gp.UserId];
                 return new GroupParticipantResponse
                 {
                     UserId = user.Id,

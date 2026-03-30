@@ -14,6 +14,11 @@ public class UsersRepository: IUsersRepository
         throw new NotImplementedException();
     }
 
+    public async Task<User[]> GetUsersByIds(IEnumerable<Guid> ids)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Calendar> GetCalendar(Guid userId)
     {
         throw new NotImplementedException();
