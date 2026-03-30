@@ -19,11 +19,6 @@ public class UsersRepository: IUsersRepository
         throw new NotImplementedException();
     }
 
-    public async Task<User> Create(User user)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task Delete(Guid id)
     {
         throw new NotImplementedException();
