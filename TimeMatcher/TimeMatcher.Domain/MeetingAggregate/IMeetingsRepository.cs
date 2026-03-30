@@ -5,6 +5,6 @@ public interface IMeetingsRepository
     public Task<Meeting> Get(Guid id);
     public Task<Meeting> Create(Meeting meeting);
     public Task Delete(Guid id);
-    public Task<Meeting[]> GetUserMeetings(Guid userId);
+    public IQueryable<Meeting> GetAll();
     public Task SaveChanges();
 }

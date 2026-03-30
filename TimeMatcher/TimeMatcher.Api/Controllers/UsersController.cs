@@ -11,19 +11,19 @@ namespace TimeMatcher.Api.Controllers;
 public class UsersController
 {
     [HttpGet]
-    public async Task<ActionResult<List<UserResponse>>> GetUsers([FromQuery] GetUsersRequest request)
+    public async Task<ActionResult<UserResponse[]>> GetUsers([FromQuery] GetUsersRequest request)
     {
         throw new NotImplementedException();
     }
     
     [HttpGet("{user-id}/groups")]
-    public async Task<ActionResult<List<GroupResponse>>> GetGroups([FromRoute(Name="user-id")] Guid userId)
+    public async Task<ActionResult<GroupResponse[]>> GetGroups([FromRoute(Name="user-id")] Guid userId)
     {
         throw new NotImplementedException();
     }
     
     [HttpGet("{user-id}/meetings")]
-    public async Task<ActionResult<List<MeetingResponse>>> GetMeetings([FromRoute(Name="user-id")] Guid userId)
+    public async Task<ActionResult<MeetingResponse[]>> GetMeetings([FromRoute(Name="user-id")] Guid userId)
     {
         throw new NotImplementedException();
     }

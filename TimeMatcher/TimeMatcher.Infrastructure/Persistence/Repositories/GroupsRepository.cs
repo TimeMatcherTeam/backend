@@ -9,17 +9,17 @@ public class GroupsRepository: IGroupsRepository
         throw new NotImplementedException();
     }
 
+    public IQueryable<Group> GetAll()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Group> Create(Group group)
     {
         throw new NotImplementedException();
     }
 
     public async Task Delete(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<Group[]> GetUserGroups(Guid userId)
     {
         throw new NotImplementedException();
     }

@@ -9,7 +9,7 @@ public class UsersRepository: IUsersRepository
         throw new NotImplementedException();
     }
 
-    public async Task<IQueryable<User>> GetAll()
+    public IQueryable<User> GetAll()
     {
         throw new NotImplementedException();
     }

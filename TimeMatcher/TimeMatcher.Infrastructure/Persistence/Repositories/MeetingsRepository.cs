@@ -19,7 +19,7 @@ public class MeetingsRepository:IMeetingsRepository
         throw new NotImplementedException();
     }
 
-    public async Task<Meeting[]> GetUserMeetings(Guid userId)
+    public IQueryable<Meeting> GetAll()
     {
         throw new NotImplementedException();
     }

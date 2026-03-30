@@ -7,5 +7,5 @@ public record CreateMeetingRequest
     public required string Name { get; init; }
     public required string? Comment { get; init; }
     public required bool IsOnline { get; init; }
-    public required Guid[] Participants { get; init; }
+    public required Guid[] ParticipantIds { get; init; }
 }

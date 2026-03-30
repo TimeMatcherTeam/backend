@@ -4,7 +4,7 @@ namespace TimeMatcher.Infrastructure.Persistence.Repositories;
 
 public class AbilitiesRepository: IAbilitiesRepository
 {
-    public async Task<IQueryable<Ability>> Get()
+    public IQueryable<Ability> GetAll()
     {
         throw new NotImplementedException();
     }
