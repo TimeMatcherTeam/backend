@@ -19,7 +19,7 @@ public class UsersRepository: IUsersRepository
         throw new NotImplementedException();
     }
 
-    public async Task<Calendar> GetCalendar(Guid userId)
+    public async Task<Calendar> GetCalendarWithFilteredSlots(Guid userId, DateTime start, DateTime end)
     {
         throw new NotImplementedException();
     }

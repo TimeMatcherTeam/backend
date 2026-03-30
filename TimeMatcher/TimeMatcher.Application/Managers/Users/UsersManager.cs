@@ -28,7 +28,7 @@ public class UsersManager: IUsersManager
         throw new NotImplementedException();
     }
 
-    public async Task<Result<CalendarResponse>> GetUserCalendar(Guid id, Guid requestUserId)
+    public async Task<Result<CalendarResponse>> GetUserCalendar(Guid id, RequestedPeriod period, Guid requestUserId)
     {
         throw new NotImplementedException();
     }
