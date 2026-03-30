@@ -8,7 +8,7 @@ namespace TimeMatcher.Api.Controllers;
 public class AbilitiesController
 {
     [HttpGet]
-    public async Task<ActionResult<List<AbilityResponse>>> GetAbilities()
+    public async Task<ActionResult<AbilityResponse[]>> GetAllAbilities()
     {
         throw new NotImplementedException();
     } 

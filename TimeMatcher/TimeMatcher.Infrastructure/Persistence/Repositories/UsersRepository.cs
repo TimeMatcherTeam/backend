@@ -7,7 +7,7 @@ public class UsersRepository: IUsersRepository
     public async Task<User> Get(Guid id)
     {
         throw new NotImplementedException();
-    }
+    } 
 
     public IQueryable<User> GetAll()
     {
