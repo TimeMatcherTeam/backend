@@ -50,7 +50,7 @@ public class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepos
         if(request.StartTime < DateTime.UtcNow) 
             return Result.Fail(AppError.UnprocessableContent("Нельзя чтобы время начала было раньше чем сейчас"));
 
-        var meeting = await meetingsRepository.Create(new Meeting
+        var meeting = new Meeting
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
@@ -58,7 +58,7 @@ public class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepos
             Link = null,
             StartTime = request.StartTime,
             EndTime = request.EndTime
-        });
+        };
         var users = await usersRepository.GetUsersByIds(request.ParticipantIds);
         var usersDictionary = users.ToDictionary(u => u.Id);
         foreach (var user in users)
@@ -66,6 +66,7 @@ public class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepos
             meeting.AddParticipant(user.Id, user.Id == requestUserId ? Role.Organizer : Role.Participant);
         }
 
+        await meetingsRepository.Create(meeting);
         await meetingsRepository.SaveChanges();
 
         return Result.Ok(new MeetingResponse

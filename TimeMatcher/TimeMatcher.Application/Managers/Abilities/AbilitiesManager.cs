@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using TimeMatcher.Application.Responses;
 using TimeMatcher.Domain.AbilityAggregate;
 
@@ -7,10 +8,10 @@ public class AbilitiesManager(IAbilitiesRepository abilitiesRepository): IAbilit
 {
     public async Task<AbilityResponse[]> GetAllAbilities()
     {
-        return abilitiesRepository.GetAll().Select(ability => new AbilityResponse
+        return await abilitiesRepository.GetAll().Select(ability => new AbilityResponse
         {
             Id = ability.Id,
             Ability = ability.Name
-        }).ToArray();
+        }).ToArrayAsync();
     }
 }

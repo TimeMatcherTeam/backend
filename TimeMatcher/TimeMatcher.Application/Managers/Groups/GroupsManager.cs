@@ -44,11 +44,11 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
         if(request.ParticipantIds.Length <= 1) 
             return Result.Fail(AppError.UnprocessableContent("Необходимо хотя бы 2 участника"));
 
-        var group = await groupsRepository.Create(new Group
+        var group = new Group
         {
             Id = Guid.NewGuid(),
             Name = request.Name
-        });
+        };
         var users = await usersRepository.GetUsersByIds(request.ParticipantIds);
         var usersDictionary = users.ToDictionary(u => u.Id);
         foreach (var user in users)
@@ -56,6 +56,7 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
             group.AddParticipant(user.Id, user.Id == requestUserId ? Role.Organizer : Role.Participant);
         }
 
+        await groupsRepository.Create(group);
         await groupsRepository.SaveChanges();
 
         return Result.Ok(new GroupResponse
@@ -160,15 +161,26 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
             return Result.Fail(AppError.NotFound("Группа не найдена"));
 
         var requestUser = group.GroupParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
-        if (requestUser== null || requestUser.Role != Role.Organizer)
+        if (requestUser == null)
             return Result.Fail(AppError.Forbidden());
-        
+
         var user = await usersRepository.Get(userId);
         if(user is null)
             return Result.Fail(AppError.NotFound("Человек не найден"));
 
         if (!group.GroupParticipants.Any(p=> p.UserId == userId))
             return Result.Fail(AppError.NotFound());
+
+        if(requestUser.Role != Role.Organizer)
+        {
+            if(requestUserId != userId)
+                return Result.Fail(AppError.Forbidden());
+            
+            group.RemoveParticipant(userId);
+            await groupsRepository.SaveChanges();
+
+            return Result.Ok();
+        }
 
         if (requestUserId == userId) 
             return Result.Fail(AppError.UnprocessableContent("Нельзя удалять себя"));
