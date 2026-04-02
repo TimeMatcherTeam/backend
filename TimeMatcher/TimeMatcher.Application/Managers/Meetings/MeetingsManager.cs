@@ -1,28 +1,139 @@
 using FluentResults;
 using TimeMatcher.Application.Requests.Meeting;
 using TimeMatcher.Application.Responses.Meeting;
+using TimeMatcher.Application.Errors;
+using TimeMatcher.Domain.MeetingAggregate;
+using TimeMatcher.Domain.UserAggregate;
+using TimeMatcher.Domain.Enums;
 
 namespace TimeMatcher.Application.Managers.Meetings;
 
-public class MeetingsManager: IMeetingsManager
+public class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepository usersRepository): IMeetingsManager
 {
     public async Task<Result<MeetingResponse>> GetMeetingById(Guid id, Guid requestUserId)
     {
-        throw new NotImplementedException();
+        var meeting = await meetingsRepository.Get(id);
+        if (meeting is null) return Result.Fail(AppError.NotFound());
+        if (!meeting.MeetingParticipants.Any(gp => gp.UserId == requestUserId)) return Result.Fail(AppError.Forbidden());
+        var userIds = meeting.MeetingParticipants.Select(gp => gp.UserId);
+        var users = await usersRepository.GetUsersByIds(userIds);
+        var usersDictionary = users.ToDictionary(u => u.Id);
+        return Result.Ok(new MeetingResponse
+        {
+            Id = meeting.Id,
+            Name = meeting.Name,
+            Comment = meeting.Comment,
+            Link = meeting.Link,
+            StartTime = meeting.StartTime,
+            EndTime = meeting.EndTime,
+            Participants = meeting.MeetingParticipants.Select(gp =>
+            {
+                var user = usersDictionary[gp.UserId];
+                return new MeetingParticipantResponse
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email
+                };
+            }).ToArray()
+        });
     }
 
     public async Task<Result<MeetingResponse>> CreateMeeting(CreateMeetingRequest request, Guid requestUserId)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return Result.Fail(AppError.UnprocessableContent("Название не может быть пустым"));
+        if(request.ParticipantIds.Length <= 1) 
+            return Result.Fail(AppError.UnprocessableContent("Необходимо хотя бы 2 участника"));
+        if(request.StartTime >= request.EndTime) 
+            return Result.Fail(AppError.UnprocessableContent("Начало не может быть позже конца"));
+        if(request.StartTime < DateTime.UtcNow) 
+            return Result.Fail(AppError.UnprocessableContent("Нельзя чтобы время начала было раньше чем сейчас"));
+
+        var meeting = await meetingsRepository.Create(new Meeting
+        {
+            Id = Guid.NewGuid(),
+            Name = request.Name,
+            Comment = request.Comment,
+            Link = null,
+            StartTime = request.StartTime,
+            EndTime = request.EndTime
+        });
+        var users = await usersRepository.GetUsersByIds(request.ParticipantIds);
+        var usersDictionary = users.ToDictionary(u => u.Id);
+        foreach (var user in users)
+        {
+            meeting.AddParticipant(user.Id, user.Id == requestUserId ? Role.Organizer : Role.Participant);
+        }
+
+        await meetingsRepository.SaveChanges();
+
+        return Result.Ok(new MeetingResponse
+        {
+            Id = meeting.Id,
+            Name = meeting.Name,
+            Comment = meeting.Comment,
+            Link = meeting.Link,
+            StartTime = meeting.StartTime,
+            EndTime = meeting.EndTime,
+            Participants = meeting.MeetingParticipants.Select(gp =>
+            {
+                var user = usersDictionary[gp.UserId];
+                return new MeetingParticipantResponse
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email
+                };
+            }).ToArray()
+        });
     }
 
     public async Task<Result<MeetingResponse>> UpdateMeeting(Guid id, UpdateMeetingRequest request, Guid requestUserId)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return Result.Fail(AppError.UnprocessableContent("Название не может быть пустым"));
+        var meeting = await meetingsRepository.Get(id);
+        if (meeting is null) 
+            return Result.Fail(AppError.NotFound());
+        var requestUser = meeting.MeetingParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
+        if (requestUser== null || requestUser.Role != Role.Organizer) 
+            return Result.Fail(AppError.Forbidden());
+
+        meeting.Name = request.Name;
+        meeting.Comment = request.Comment;
+        await meetingsRepository.SaveChanges();
+
+        var usersIds = meeting.MeetingParticipants.Select(m => m.UserId);
+        var users = await usersRepository.GetUsersByIds(usersIds);
+        var usersDictionary = users.ToDictionary(u => u.Id);
+        return Result.Ok(new MeetingResponse
+        {
+            Id = meeting.Id,
+            Name = meeting.Name,
+            Comment = meeting.Comment,
+            Link = meeting.Link,
+            StartTime = meeting.StartTime,
+            EndTime = meeting.EndTime,
+            Participants = meeting.MeetingParticipants.Select(gp =>
+            {
+                var user = usersDictionary[gp.UserId];
+                return new MeetingParticipantResponse
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email
+                };
+            }).ToArray()
+        });
     }
 
     public async Task<Result> DeleteMeeting(Guid id, Guid requestUserId)
     {
-        throw new NotImplementedException();
+        var meeting = await meetingsRepository.Get(id);
+        if (meeting is null) 
+            return Result.Fail(AppError.NotFound());
+        await meetingsRepository.Delete(id);
+        return Result.Ok();
     }
 }
