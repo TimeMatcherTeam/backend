@@ -133,6 +133,9 @@ public class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepos
         var meeting = await meetingsRepository.Get(id);
         if (meeting is null) 
             return Result.Fail(AppError.NotFound());
+        var requestUser = meeting.MeetingParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
+        if (requestUser== null || requestUser.Role != Role.Organizer)
+            return Result.Fail(AppError.Forbidden());
         await meetingsRepository.Delete(id);
         return Result.Ok();
     }
