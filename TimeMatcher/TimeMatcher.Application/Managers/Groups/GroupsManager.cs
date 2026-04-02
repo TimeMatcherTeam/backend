@@ -170,7 +170,7 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
         if (!group.GroupParticipants.Any(p=> p.UserId == userId))
             return Result.Fail(AppError.NotFound());
 
-        if (id == userId) 
+        if (requestUserId == userId) 
             return Result.Fail(AppError.UnprocessableContent("Нельзя удалять себя"));
 
         group.RemoveParticipant(userId);
