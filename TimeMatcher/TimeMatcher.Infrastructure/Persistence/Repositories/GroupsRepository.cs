@@ -25,17 +25,11 @@ public class GroupsRepository: IGroupsRepository
     public async Task<Group> Create(Group group)
     {
         await _context.Groups.AddAsync(group);
-
         return group;
     }
 
-    public async Task Delete(Guid id)
+    public void Delete(Group group)
     {
-        var group = await _context.Groups.FirstOrDefaultAsync(x => x.Id == id);
-
-        if (group == null)
-            throw new KeyNotFoundException($"Группа с айди {id} не найдена");
-
         _context.Groups.Remove(group);
     }
 

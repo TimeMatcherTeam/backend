@@ -122,7 +122,8 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
         if (requestUser== null || requestUser.Role != Role.Organizer)
             return Result.Fail(AppError.Forbidden());
 
-        await groupsRepository.Delete(id);
+        groupsRepository.Delete(group);
+        await groupsRepository.SaveChanges();
         return Result.Ok();
     }
 

@@ -4,7 +4,7 @@ public interface IMeetingsRepository
 {
     public Task<Meeting?> Get(Guid id);
     public Task<Meeting> Create(Meeting meeting);
-    public Task Delete(Guid id);
+    public void Delete(Meeting meeting);
     public IQueryable<Meeting> GetAll();
     public Task SaveChanges();
 }

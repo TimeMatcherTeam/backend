@@ -4,7 +4,7 @@ public interface IGroupsRepository
 {
     public Task<Group?> Get(Guid id);
     public Task<Group> Create(Group group);
-    public Task Delete(Guid id);
+    public void Delete(Group group);
     public IQueryable<Group> GetAll();
     public Task SaveChanges();
 }

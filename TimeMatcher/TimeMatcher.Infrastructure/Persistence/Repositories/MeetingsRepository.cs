@@ -20,17 +20,11 @@ public class MeetingsRepository:IMeetingsRepository
     public async Task<Meeting> Create(Meeting meeting)
     {
         await _context.Meetings.AddAsync(meeting);
-
         return meeting;
     }
 
-    public async Task Delete(Guid id)
+    public void Delete(Meeting meeting)
     {
-        var meeting = await _context.Meetings.FirstOrDefaultAsync(x => x.Id == id);
-
-        if (meeting == null)
-            throw new KeyNotFoundException($"Встреча с айди {id} не найдена");
-
         _context.Meetings.Remove(meeting);
     }
 
