@@ -126,10 +126,10 @@ public class UsersController(IUsersManager usersManager) : ControllerBase
 
     [HttpPut("{user-id}/change-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<LoginInfoResponse>> ChangePassword([FromRoute(Name = "user-id")] Guid userId, [FromBody] string oldPassword, [FromBody] string newPassword, [FromServices] IIdentityService identityService)
+    public async Task<ActionResult<LoginInfoResponse>> ChangePassword([FromRoute(Name = "user-id")] Guid userId, [FromBody] ChangePasswordRequest request, [FromServices] IIdentityService identityService)
     {
         var requestedUserId = identityService.GetUserIdentity();
-        var result = await usersManager.ChangePassword(oldPassword, newPassword, requestedUserId);
+        var result = await usersManager.ChangePassword(request, requestedUserId);
         return result.ToActionResult();
     }
 }

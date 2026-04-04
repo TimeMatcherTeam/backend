@@ -135,10 +135,10 @@ internal class UsersManager(UserManager<User> userManager, IAccessTokenGenerator
         });
     }
 
-    public async Task<Result<LoginInfoResponse>> ChangePassword(string oldPassword, string newPassword, Guid requestUserId)
+    public async Task<Result<LoginInfoResponse>> ChangePassword(ChangePasswordRequest request, Guid requestUserId)
     {
         var user = await userManager.FindByIdAsync(requestUserId.ToString());
-        var result = await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        var result = await userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
         if (!result.Succeeded)
         {
             return Result.Fail(AppError.Validation(
