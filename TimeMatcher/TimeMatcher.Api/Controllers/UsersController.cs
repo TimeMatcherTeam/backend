@@ -1,17 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
-using TimeMatcher.Application.Requests.User;
-using TimeMatcher.Application.Responses.Group;
-using TimeMatcher.Application.Responses.Meeting;
-using TimeMatcher.Application.Responses.User;
+using TimeMatcher.Api.Auth;
+using TimeMatcher.Api.Errors;
+using TimeMatcher.Application.Managers.Users;
+using TimeMatcher.Application.Models.Requests.User;
+using TimeMatcher.Application.Models.Responses.Group;
+using TimeMatcher.Application.Models.Responses.Meeting;
+using TimeMatcher.Application.Models.Responses.User;
 
 namespace TimeMatcher.Api.Controllers;
 
 [ApiController]
 [Route("api/users")]
-public class UsersController
+public class UsersController(IUsersManager usersManager) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<UserResponse[]>> GetUsers([FromQuery] GetUsersRequest request)
+    public async Task<ActionResult<UserResponse[]>> GetUsers([FromQuery] GetUsersRequest request, [FromServices] IIdentityService identityService)
     {
         throw new NotImplementedException();
     }
@@ -42,12 +45,6 @@ public class UsersController
     
     [HttpPost("/merge-calendar")]
     public async Task<ActionResult<CalendarResponse>> GetMergedCalendar([FromBody] GetMergedCalendarRequest request)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<UserResponse>> CreateUser([FromBody] CreateUserRequest request)
     {
         throw new NotImplementedException();
     }
@@ -82,5 +79,27 @@ public class UsersController
     {
         throw new NotImplementedException();
     }
+    
+    /// <summary>
+    /// Регистрация пользователя
+    /// </summary>
+    [HttpPost]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<LoginInfoResponse>> Register([FromBody] RegisterUserRequest request)
+    {
+        var result = await usersManager.RegisterAsync(request);
+        return result.ToActionResult();
+    }
 
+    /// <summary>
+    /// Аутентификация пользователя и получение JWT-токена
+    /// </summary>
+    [HttpPost("me/login")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<LoginInfoResponse>> Login([FromBody] LoginUserRequest request)
+    {
+        var result = await usersManager.LoginAsync(request.Email, request.Password);
+        return result.ToActionResult();
+    }
 }

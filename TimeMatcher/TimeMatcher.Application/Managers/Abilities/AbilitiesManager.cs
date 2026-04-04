@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using TimeMatcher.Application.Responses;
+using TimeMatcher.Application.Models.Responses;
 using TimeMatcher.Domain.AbilityAggregate;
 
 namespace TimeMatcher.Application.Managers.Abilities;

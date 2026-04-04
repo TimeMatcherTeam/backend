@@ -1,6 +1,6 @@
 using FluentResults;
-using TimeMatcher.Application.Requests.Group;
-using TimeMatcher.Application.Responses.Group;
+using TimeMatcher.Application.Models.Requests.Group;
+using TimeMatcher.Application.Models.Responses.Group;
 
 namespace TimeMatcher.Application.Managers.Groups;
 

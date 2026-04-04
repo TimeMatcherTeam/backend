@@ -1,6 +1,6 @@
 using FluentResults;
-using TimeMatcher.Application.Requests.Meeting;
-using TimeMatcher.Application.Responses.Meeting;
+using TimeMatcher.Application.Models.Requests.Meeting;
+using TimeMatcher.Application.Models.Responses.Meeting;
 
 namespace TimeMatcher.Application.Managers.Meetings;
 

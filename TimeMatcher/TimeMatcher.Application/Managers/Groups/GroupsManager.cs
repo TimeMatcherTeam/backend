@@ -1,8 +1,8 @@
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using TimeMatcher.Application.Errors;
-using TimeMatcher.Application.Requests.Group;
-using TimeMatcher.Application.Responses.Group;
+using TimeMatcher.Application.Models.Requests.Group;
+using TimeMatcher.Application.Models.Responses.Group;
 using TimeMatcher.Domain.Enums;
 using TimeMatcher.Domain.GroupAggregate;
 using TimeMatcher.Domain.UserAggregate;

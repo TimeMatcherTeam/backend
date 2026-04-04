@@ -1,7 +1,7 @@
 using FluentResults;
-using TimeMatcher.Application.Requests.Meeting;
-using TimeMatcher.Application.Responses.Meeting;
 using TimeMatcher.Application.Errors;
+using TimeMatcher.Application.Models.Requests.Meeting;
+using TimeMatcher.Application.Models.Responses.Meeting;
 using TimeMatcher.Domain.MeetingAggregate;
 using TimeMatcher.Domain.UserAggregate;
 using TimeMatcher.Domain.Enums;

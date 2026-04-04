@@ -1,4 +1,4 @@
-using TimeMatcher.Application.Responses;
+using TimeMatcher.Application.Models.Responses;
 
 namespace TimeMatcher.Application.Managers.Abilities;
 

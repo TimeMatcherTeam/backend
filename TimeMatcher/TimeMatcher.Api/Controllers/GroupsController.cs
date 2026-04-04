@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using TimeMatcher.Application.Requests.Group;
-using TimeMatcher.Application.Responses.Group;
+using TimeMatcher.Application.Models.Requests.Group;
+using TimeMatcher.Application.Models.Responses.Group;
 
 namespace TimeMatcher.Api.Controllers;
 
 [ApiController]
 [Route("api/groups")]
-public class GroupsController: ControllerBase
+public class GroupsController : ControllerBase
 {
     [HttpGet("{group-id}")]
     public async Task<ActionResult<GroupResponse>> Get([FromRoute(Name="group-id")] Guid groupId)

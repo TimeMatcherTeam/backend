@@ -1,9 +1,8 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace TimeMatcher.Domain.UserAggregate;
 
-public class User
+public class User: IdentityUser<Guid>
 {
-    public Guid Id { get; init; }
-    public string UserName { get; set; }
-    public string Email { get; set; }
     public Calendar Calendar { get; init; } = new();
 }
