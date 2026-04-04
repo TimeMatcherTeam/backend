@@ -63,7 +63,7 @@ internal class UsersManager(UserManager<User> userManager, IAccessTokenGenerator
         var result = await userManager.UpdateAsync(user);
         if (!result.Succeeded)
         {
-            return Result.Fail(AppError.Validation(
+            return Result.Fail(AppError.UnprocessableContent(
                 string.Join(Environment.NewLine, result.Errors.Select(error => error.Description))));
         }
 
@@ -83,7 +83,7 @@ internal class UsersManager(UserManager<User> userManager, IAccessTokenGenerator
         var result = await userManager.DeleteAsync(user);
         if (!result.Succeeded)
         {
-            return Result.Fail(AppError.Validation(
+            return Result.Fail(AppError.UnprocessableContent(
                 string.Join(Environment.NewLine, result.Errors.Select(error => error.Description))));
         }
         return Result.Ok();
@@ -101,7 +101,7 @@ internal class UsersManager(UserManager<User> userManager, IAccessTokenGenerator
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
-            return Result.Fail(AppError.Validation(
+            return Result.Fail(AppError.UnprocessableContent(
                 string.Join(Environment.NewLine, result.Errors.Select(error => error.Description))));
         }
         
@@ -135,13 +135,15 @@ internal class UsersManager(UserManager<User> userManager, IAccessTokenGenerator
         });
     }
 
-    public async Task<Result<LoginInfoResponse>> ChangePassword(ChangePasswordRequest request, Guid requestUserId)
+    public async Task<Result<LoginInfoResponse>> ChangePassword(Guid userId, ChangePasswordRequest request, Guid requestUserId)
     {
+        if (userId != requestUserId)
+            return Result.Fail(AppError.Forbidden());
         var user = await userManager.FindByIdAsync(requestUserId.ToString());
         var result = await userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
         if (!result.Succeeded)
         {
-            return Result.Fail(AppError.Validation(
+            return Result.Fail(AppError.UnprocessableContent(
                 string.Join(Environment.NewLine, result.Errors.Select(error => error.Description))));
         }
         

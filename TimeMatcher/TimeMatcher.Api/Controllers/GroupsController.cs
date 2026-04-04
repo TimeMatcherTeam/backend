@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TimeMatcher.Api.Auth;
 using TimeMatcher.Api.Errors;
@@ -8,6 +9,7 @@ using TimeMatcher.Application.Models.Responses.Group;
 namespace TimeMatcher.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/groups")]
 public class GroupsController(IGroupsManager groupsManager) : ControllerBase
 {

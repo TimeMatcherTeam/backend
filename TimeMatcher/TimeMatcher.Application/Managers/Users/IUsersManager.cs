@@ -21,6 +21,6 @@ public interface IUsersManager
    Task<Result> DeleteSlot(Guid id, Guid userId, Guid requestUserId);
    Task<Result<LoginInfoResponse>> RegisterAsync(RegisterUserRequest request);
    Task<Result<LoginInfoResponse>> LoginAsync(string email, string password);
-   Task<Result<LoginInfoResponse>> ChangePassword(ChangePasswordRequest request, Guid requestUserId);
+   Task<Result<LoginInfoResponse>> ChangePassword(Guid userId, ChangePasswordRequest request, Guid requestUserId);
    
 }
