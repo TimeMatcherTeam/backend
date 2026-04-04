@@ -8,7 +8,7 @@ namespace TimeMatcher.Application.Managers.Users;
 
 public interface IUsersManager
 {
-   Task<Result<UserResponse[]>> GetUsers(GetUsersRequest request, Guid requestUserId);
+   Task<Result<UserResponse[]>> GetUsers(GetUsersRequest request);
    Task<Result<UserResponse>> GetUserById(Guid id, Guid requestUserId);
    Task<Result<GroupResponse[]>> GetUserGroups(Guid id, Guid requestUserId);
    Task<Result<MeetingResponse[]>> GetUserMeetings(Guid id, Guid requestUserId);
@@ -21,5 +21,6 @@ public interface IUsersManager
    Task<Result> DeleteSlot(Guid id, Guid userId, Guid requestUserId);
    Task<Result<LoginInfoResponse>> RegisterAsync(RegisterUserRequest request);
    Task<Result<LoginInfoResponse>> LoginAsync(string email, string password);
+   Task<Result<LoginInfoResponse>> ChangePassword(string oldPassword, string newPassword, Guid requestUserId);
    
 }

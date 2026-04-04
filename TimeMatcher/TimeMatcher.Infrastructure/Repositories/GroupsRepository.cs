@@ -3,38 +3,31 @@ using TimeMatcher.Domain.GroupAggregate;
 
 namespace TimeMatcher.Infrastructure.Repositories;
 
-public class GroupsRepository: IGroupsRepository
+internal class GroupsRepository(AppDbContext context) : IGroupsRepository
 {
-    private readonly AppDbContext _context;
-
-    public GroupsRepository(AppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Group?> Get(Guid id)
     {
-        return await _context.Groups.FirstOrDefaultAsync(x => x.Id == id);
+        return await context.Groups.FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public IQueryable<Group> GetAll()
     {
-        return _context.Groups.AsQueryable();
+        return context.Groups;
     }
 
     public async Task<Group> Create(Group group)
     {
-        await _context.Groups.AddAsync(group);
+        await context.Groups.AddAsync(group);
         return group;
     }
 
     public void Delete(Group group)
     {
-        _context.Groups.Remove(group);
+        context.Groups.Remove(group);
     }
 
     public async Task SaveChanges()
     {
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 }

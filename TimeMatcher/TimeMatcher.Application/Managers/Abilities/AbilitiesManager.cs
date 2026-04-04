@@ -4,7 +4,7 @@ using TimeMatcher.Domain.AbilityAggregate;
 
 namespace TimeMatcher.Application.Managers.Abilities;
 
-public class AbilitiesManager(IAbilitiesRepository abilitiesRepository): IAbilitiesManager
+internal class AbilitiesManager(IAbilitiesRepository abilitiesRepository): IAbilitiesManager
 {
     public async Task<AbilityResponse[]> GetAllAbilities()
     {

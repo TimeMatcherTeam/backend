@@ -10,9 +10,9 @@ using TimeMatcher.Domain.UserAggregate;
 
 namespace TimeMatcher.Application.Managers.Users;
 
-public class UsersManager(UserManager<User> userManager, IAccessTokenGenerator accessTokenGenerator, SignInManager<User> signInManager): IUsersManager
+internal class UsersManager(UserManager<User> userManager, IAccessTokenGenerator accessTokenGenerator, SignInManager<User> signInManager): IUsersManager
 {
-    public async Task<Result<UserResponse[]>> GetUsers(GetUsersRequest request, Guid requestUserId)
+    public async Task<Result<UserResponse[]>> GetUsers(GetUsersRequest request)
     {
         throw new NotImplementedException();
     }
@@ -42,11 +42,6 @@ public class UsersManager(UserManager<User> userManager, IAccessTokenGenerator a
         throw new NotImplementedException();
     }
 
-    public async Task<Result<UserResponse>> CreateUser(RegisterUserRequest request)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<Result<SlotResponse>> CreateSlot(SlotRequest request, Guid userId, Guid requestUserId)
     {
         throw new NotImplementedException();
@@ -59,12 +54,39 @@ public class UsersManager(UserManager<User> userManager, IAccessTokenGenerator a
 
     public async Task<Result<UserResponse>> UpdateUser(Guid id, UpdateUserRequest request, Guid requestUserId)
     {
-        throw new NotImplementedException();
+        if (requestUserId != id)
+            return Result.Fail(AppError.Forbidden("Нельзя редактировать не себя"));
+        var user = await userManager.FindByIdAsync(id.ToString());
+        user.UserName = request.UserName ?? user.UserName;
+        user.Email = request.Email ?? user.Email;
+
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            return Result.Fail(AppError.Validation(
+                string.Join(Environment.NewLine, result.Errors.Select(error => error.Description))));
+        }
+
+        return Result.Ok(new UserResponse
+        {
+            Id = user.Id,
+            UserName = user.UserName, 
+            Email = user.Email
+        });
     }
 
     public async Task<Result> DeleteUser(Guid id, Guid requestUserId)
     {
-        throw new NotImplementedException();
+        if (id != requestUserId)
+            return Result.Fail(AppError.Forbidden("Нельзя удалить не себя"));
+        var user = await userManager.FindByIdAsync(id.ToString());
+        var result = await userManager.DeleteAsync(user);
+        if (!result.Succeeded)
+        {
+            return Result.Fail(AppError.Validation(
+                string.Join(Environment.NewLine, result.Errors.Select(error => error.Description))));
+        }
+        return Result.Ok();
     }
 
     public async Task<Result> DeleteSlot(Guid id, Guid userId, Guid requestUserId)
@@ -95,7 +117,6 @@ public class UsersManager(UserManager<User> userManager, IAccessTokenGenerator a
     private async Task<string> GenerateAccessToken(User user)
     {
         var principal = await signInManager.CreateUserPrincipalAsync(user);
-        
         return accessTokenGenerator.Generate(principal.Claims);
     }
 
@@ -111,6 +132,24 @@ public class UsersManager(UserManager<User> userManager, IAccessTokenGenerator a
         {
             UserId = user.Id,
             AccessToken = accessToken,
+        });
+    }
+
+    public async Task<Result<LoginInfoResponse>> ChangePassword(string oldPassword, string newPassword, Guid requestUserId)
+    {
+        var user = await userManager.FindByIdAsync(requestUserId.ToString());
+        var result = await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            return Result.Fail(AppError.Validation(
+                string.Join(Environment.NewLine, result.Errors.Select(error => error.Description))));
+        }
+        
+        var accessToken = await GenerateAccessToken(user);
+        return Result.Ok(new LoginInfoResponse
+        {
+            UserId = user.Id,
+            AccessToken = accessToken
         });
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace TimeMatcher.Application.Managers.Users;
 
-public class AccessTokenGenerator(AuthOptions authOptions) : IAccessTokenGenerator
+internal class AccessTokenGenerator(AuthOptions authOptions) : IAccessTokenGenerator
 {
     public string Generate(IEnumerable<Claim> claims)
     {
@@ -17,7 +17,7 @@ public class AccessTokenGenerator(AuthOptions authOptions) : IAccessTokenGenerat
             audience: authOptions.Audience,
             claims: claims,
             notBefore: DateTime.UtcNow,
-            expires: DateTime.UtcNow.AddHours(3),
+            expires: DateTime.UtcNow.AddDays(14),
             signingCredentials: creds
         );
         

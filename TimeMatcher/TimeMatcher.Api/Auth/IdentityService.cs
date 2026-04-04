@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 namespace TimeMatcher.Api.Auth;
 
-public class IdentityService(IHttpContextAccessor context) : IIdentityService
+internal class IdentityService(IHttpContextAccessor context) : IIdentityService
 {
     public Guid GetUserIdentity()
     {

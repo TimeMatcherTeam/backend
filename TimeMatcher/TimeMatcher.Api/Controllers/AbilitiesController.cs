@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TimeMatcher.Application.Managers.Abilities;
 using TimeMatcher.Application.Models.Responses;
 
 namespace TimeMatcher.Api.Controllers;
@@ -7,11 +8,16 @@ namespace TimeMatcher.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/abilities")]
-public class AbilitiesController : ControllerBase
+public class AbilitiesController(IAbilitiesManager abilitiesManager) : ControllerBase
 {
+    /// <summary>
+    /// Получение всех типов занятости
+    /// </summary>
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<AbilityResponse[]>> GetAllAbilities()
     {
-        throw new NotImplementedException();
+        var abilities = await abilitiesManager.GetAllAbilities();
+        return Ok(abilities);
     } 
 }

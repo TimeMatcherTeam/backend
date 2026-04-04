@@ -2,7 +2,7 @@ using TimeMatcher.Domain.UserAggregate;
 
 namespace TimeMatcher.Infrastructure.Repositories;
 
-public class UsersRepository: IUsersRepository
+internal class UsersRepository: IUsersRepository
 {
     public async Task<User> Get(Guid id)
     {
@@ -20,11 +20,6 @@ public class UsersRepository: IUsersRepository
     }
 
     public async Task<Calendar> GetCalendarWithFilteredSlots(Guid userId, DateTime start, DateTime end)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task Delete(Guid id)
     {
         throw new NotImplementedException();
     }

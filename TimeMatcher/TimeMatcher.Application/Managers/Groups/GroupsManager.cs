@@ -9,7 +9,7 @@ using TimeMatcher.Domain.UserAggregate;
 
 namespace TimeMatcher.Application.Managers.Groups;
 
-public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository usersRepository): IGroupsManager
+internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository usersRepository): IGroupsManager
 {
     
     public async Task<Result<GroupResponse>> GetGroupById(Guid id, Guid requestUserId)
@@ -50,6 +50,8 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
             Name = request.Name
         };
         var users = await usersRepository.GetUsersByIds(request.ParticipantIds);
+        if (users.Length != request.ParticipantIds.Length)
+            return Result.Fail(AppError.UnprocessableContent("Все участники должны существовать"));
         var usersDictionary = users.ToDictionary(u => u.Id);
         foreach (var user in users)
         {
@@ -139,7 +141,7 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
         
         var user = await usersRepository.Get(userId);
         if(user is null)
-            return Result.Fail(AppError.NotFound("Человек не найден"));
+            return Result.Fail(AppError.UnprocessableContent("Человек не найден"));
 
         if (group.GroupParticipants.Any(p=> p.UserId == userId))
             return Result.Fail(AppError.Conflict());
@@ -167,7 +169,7 @@ public class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository 
 
         var user = await usersRepository.Get(userId);
         if(user is null)
-            return Result.Fail(AppError.NotFound("Человек не найден"));
+            return Result.Fail(AppError.UnprocessableContent("Человек не найден"));
 
         if (!group.GroupParticipants.Any(p=> p.UserId == userId))
             return Result.Fail(AppError.NotFound());

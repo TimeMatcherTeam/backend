@@ -8,7 +8,7 @@ using TimeMatcher.Domain.Enums;
 
 namespace TimeMatcher.Application.Managers.Meetings;
 
-public class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepository usersRepository): IMeetingsManager
+internal class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepository usersRepository): IMeetingsManager
 {
     public async Task<Result<MeetingResponse>> GetMeetingById(Guid id, Guid requestUserId)
     {
@@ -60,6 +60,8 @@ public class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepos
             EndTime = request.EndTime
         };
         var users = await usersRepository.GetUsersByIds(request.ParticipantIds);
+        if (users.Length != request.ParticipantIds.Length)
+            return Result.Fail(AppError.UnprocessableContent("Все участники должны существовать"));
         var usersDictionary = users.ToDictionary(u => u.Id);
         foreach (var user in users)
         {

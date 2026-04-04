@@ -2,17 +2,10 @@ using TimeMatcher.Domain.AbilityAggregate;
 
 namespace TimeMatcher.Infrastructure.Repositories;
 
-public class AbilitiesRepository: IAbilitiesRepository
+internal class AbilitiesRepository(AppDbContext context) : IAbilitiesRepository
 {
-    private readonly AppDbContext _context;
-
-    public AbilitiesRepository(AppDbContext context)
-    {
-        _context = context;
-    }
-
     public IQueryable<Ability> GetAll()
     {
-        return _context.Abilities.AsQueryable();
+        return context.Abilities;
     }
 }
