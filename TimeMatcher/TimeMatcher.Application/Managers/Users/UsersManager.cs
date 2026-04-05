@@ -10,7 +10,11 @@ using TimeMatcher.Domain.UserAggregate;
 
 namespace TimeMatcher.Application.Managers.Users;
 
-internal class UsersManager(UserManager<User> userManager, IAccessTokenGenerator accessTokenGenerator, SignInManager<User> signInManager): IUsersManager
+internal class UsersManager(
+    UserManager<User> userManager, 
+    IAccessTokenGenerator accessTokenGenerator, 
+    SignInManager<User> signInManager,
+    IUsersRepository repository): IUsersManager
 {
     public async Task<Result<UserResponse[]>> GetUsers(GetUsersRequest request)
     {
@@ -19,7 +23,15 @@ internal class UsersManager(UserManager<User> userManager, IAccessTokenGenerator
 
     public async Task<Result<UserResponse>> GetUserById(Guid id, Guid requestUserId)
     {
-        throw new NotImplementedException();
+        var user = await repository.Get(id);
+        if (user is null)
+            return Result.Fail(AppError.NotFound());
+        return Result.Ok(new UserResponse
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+        });
     }
 
     public async Task<Result<GroupResponse[]>> GetUserGroups(Guid id, Guid requestUserId)

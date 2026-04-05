@@ -27,7 +27,8 @@ builder.Services
     .AddBuisnessLogic()
     .AddSwagger();
 
-
+builder.Services.AddExceptionHandler<ExceptionHandler>();
+builder.Services.AddProblemDetails(); 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -39,7 +40,7 @@ using (var scope = app.Services.CreateScope())
 await RoleCreator.CreateRolesInSystemAsync(app);
 
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseExceptionHandler();
 app.UseSwagger();
 
 

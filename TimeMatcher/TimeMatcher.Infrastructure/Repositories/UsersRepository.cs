@@ -1,12 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using TimeMatcher.Domain.UserAggregate;
 
 namespace TimeMatcher.Infrastructure.Repositories;
 
-internal class UsersRepository: IUsersRepository
+internal class UsersRepository(AppDbContext context): IUsersRepository
 {
-    public async Task<User> Get(Guid id)
+    public async Task<User?> Get(Guid id)
     {
-        throw new NotImplementedException();
+        return await context.Users.FirstOrDefaultAsync(u => u.Id == id);
     } 
 
     public IQueryable<User> GetAll()
