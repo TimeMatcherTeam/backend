@@ -7,7 +7,8 @@ internal class MeetingsRepository(AppDbContext context) : IMeetingsRepository
 {
     public async Task<Meeting?> Get(Guid id)
     {
-        return await context.Meetings.FirstOrDefaultAsync(x => x.Id == id);
+        return await GetAll()
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Meeting> Create(Meeting meeting)
@@ -23,7 +24,7 @@ internal class MeetingsRepository(AppDbContext context) : IMeetingsRepository
 
     public IQueryable<Meeting> GetAll()
     {
-        return context.Meetings;
+        return context.Meetings.Include(m => m.MeetingParticipants);
     }
 
     public async Task SaveChanges()

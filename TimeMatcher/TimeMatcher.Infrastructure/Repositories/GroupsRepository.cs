@@ -7,12 +7,12 @@ internal class GroupsRepository(AppDbContext context) : IGroupsRepository
 {
     public async Task<Group?> Get(Guid id)
     {
-        return await context.Groups.FirstOrDefaultAsync(x => x.Id == id);
+        return await GetAll().FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public IQueryable<Group> GetAll()
     {
-        return context.Groups;
+        return context.Groups.Include(g => g.GroupParticipants);
     }
 
     public async Task<Group> Create(Group group)
