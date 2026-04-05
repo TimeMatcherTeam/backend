@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using TimeMatcher.Api;
 using TimeMatcher.Api.Auth;
 using TimeMatcher.Api.Extensions;
 using TimeMatcher.Application;
@@ -36,6 +38,8 @@ using (var scope = app.Services.CreateScope())
 
 await RoleCreator.CreateRolesInSystemAsync(app);
 
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseSwagger();
 
 
