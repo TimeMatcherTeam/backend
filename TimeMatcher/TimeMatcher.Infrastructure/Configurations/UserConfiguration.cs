@@ -13,8 +13,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey<Calendar>(c => c.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
-        builder.Property(u => u.Nickname)
-            .IsRequired()
-            .HasMaxLength(256);
     }
 }

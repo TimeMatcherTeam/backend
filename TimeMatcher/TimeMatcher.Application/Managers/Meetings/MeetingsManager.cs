@@ -32,7 +32,7 @@ internal class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRep
                 return new MeetingParticipantResponse
                 {
                     UserId = user.Id,
-                    NickName = user.Nickname,
+                    UserName = user.UserName,
                     Email = user.Email
                 };
             }).ToArray()
@@ -85,7 +85,7 @@ internal class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRep
                 return new MeetingParticipantResponse
                 {
                     UserId = user.Id,
-                    NickName = user.Nickname,
+                    UserName = user.UserName,
                     Email = user.Email
                 };
             }).ToArray()
@@ -124,7 +124,7 @@ internal class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRep
                 return new MeetingParticipantResponse
                 {
                     UserId = user.Id,
-                    NickName = user.Nickname,
+                    UserName = user.UserName,
                     Email = user.Email
                 };
             }).ToArray()
