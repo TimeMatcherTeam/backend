@@ -19,6 +19,7 @@ public static class AuthenticationConfiguration
         services
             .AddIdentity<User, UserRole>(options =>
             {
+                options.User.RequireUniqueEmail = true; 
                 options.SignIn.RequireConfirmedEmail = false;
                 options.SignIn.RequireConfirmedAccount = false;
             })
