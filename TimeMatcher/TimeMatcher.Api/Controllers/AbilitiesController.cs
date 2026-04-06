@@ -6,7 +6,6 @@ using TimeMatcher.Application.Models.Responses;
 namespace TimeMatcher.Api.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/abilities")]
 public class AbilitiesController(IAbilitiesManager abilitiesManager) : ControllerBase
 {

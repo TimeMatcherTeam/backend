@@ -27,6 +27,17 @@ builder.Services
     .AddBuisnessLogic()
     .AddSwagger();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddProblemDetails(); 
 var app = builder.Build();
@@ -45,6 +56,8 @@ app.UseSwagger();
 
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
