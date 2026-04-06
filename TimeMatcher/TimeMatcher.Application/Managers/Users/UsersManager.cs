@@ -29,7 +29,7 @@ internal class UsersManager(
         return Result.Ok(new UserResponse
         {
             Id = user.Id,
-            UserName = user.UserName,
+            NickName = user.Nickname,
             Email = user.Email,
         });
     }
@@ -69,8 +69,9 @@ internal class UsersManager(
         if (requestUserId != id)
             return Result.Fail(AppError.Forbidden("Нельзя редактировать не себя"));
         var user = await userManager.FindByIdAsync(id.ToString());
-        user.UserName = request.UserName ?? user.UserName;
+        user.Nickname = request.NickName ?? user.Nickname;
         user.Email = request.Email ?? user.Email;
+        user.UserName = user.Email;
 
         var result = await userManager.UpdateAsync(user);
         if (!result.Succeeded)
@@ -82,7 +83,7 @@ internal class UsersManager(
         return Result.Ok(new UserResponse
         {
             Id = user.Id,
-            UserName = user.UserName, 
+            NickName = user.Nickname, 
             Email = user.Email
         });
     }
@@ -108,7 +109,7 @@ internal class UsersManager(
     
     public async Task<Result<LoginInfoResponse>> RegisterAsync(RegisterUserRequest request)
     {
-        var user = new User { Email = request.Email, UserName = request.UserName };
+        var user = new User { Email = request.Email, UserName = request.Email, Nickname = request.NickName };
         
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)

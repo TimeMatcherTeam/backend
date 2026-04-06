@@ -30,7 +30,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
                 return new GroupParticipantResponse
                 {
                     UserId = user.Id,
-                    UserName = user.UserName,
+                    NickName = user.Nickname,
                     Email = user.Email
                 };
             }).ToArray()
@@ -71,7 +71,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
                 return new GroupParticipantResponse
                 {
                     UserId = user.Id,
-                    UserName = user.UserName,
+                    NickName = user.Nickname,
                     Email = user.Email
                 };
             }).ToArray()
@@ -107,7 +107,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
                 return new GroupParticipantResponse
                 {
                     UserId = user.Id,
-                    UserName = user.UserName,
+                    NickName = user.Nickname,
                     Email = user.Email
                 };
             }).ToArray()
@@ -152,7 +152,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
         return Result.Ok(new GroupParticipantResponse
         {
             UserId = user.Id,
-            UserName = user.UserName,
+            NickName = user.Nickname,
             Email = user.Email
         });
     }
