@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using TimeMatcher.Domain.AbilityAggregate;
 using TimeMatcher.Domain.MeetingAggregate;
 
@@ -10,16 +11,19 @@ public class Calendar
     public IReadOnlyList<Slot> Slots => slots.AsReadOnly();
     private List<Slot> slots = [];
     
-    public void AddSlot(DateTime start, DateTime end, Ability ability, Meeting? meeting)
+    public Slot AddSlot(DateTime start, DateTime end, string? comment, Ability ability, Meeting? meeting)
     {
-        slots.Add(new Slot
+        var slot = new Slot
         {
             StartTime = start,
             EndTime = end,
+            Comment = comment,
             Ability = ability,
             CalendarId = Id,
             Meeting = meeting
-        });
+        };
+        slots.Add(slot);
+        return slot;
     }
 
     public void RemoveSlot(Guid id)

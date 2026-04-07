@@ -149,6 +149,7 @@ internal class UsersManager(
                     Id = slot.Id,
                     StartTime = slot.StartTime,
                     EndTime = slot.EndTime,
+                    Comment = slot.Comment,
                     Ability = new AbilityResponse
                     {
                         Id = slot.Ability.Id, 
@@ -183,6 +184,7 @@ internal class UsersManager(
                     Id = slot.Id,
                     StartTime = slot.StartTime,
                     EndTime = slot.EndTime,
+                    Comment = slot.Comment,
                     Ability = new AbilityResponse
                     {
                         Id = slot.Ability.Id, 
@@ -217,22 +219,15 @@ internal class UsersManager(
         if (ability is null)
             return Result.Fail(AppError.NotFound("доступность не найдена"));
 
-        var slot = new Slot
-        {
-            Id = Guid.NewGuid(),
-            StartTime = request.StartTime,
-            EndTime = request.EndTime,
-            Ability = ability,
-            CalendarId = user.Calendar.Id,
-            Meeting = null
-        };//todo=====================================================================================================================================================================================================================================================================================
-        user.Calendar.AddSlot(request.StartTime,request.EndTime,ability,null);
+
+        var slot = user.Calendar.AddSlot(request.StartTime,request.EndTime,request.Comment,ability,null);
 
         return Result.Ok(new SlotResponse
         {
             Id = slot.Id,
             StartTime = slot.StartTime,
             EndTime = slot.EndTime,
+            Comment = slot.Comment,
             Ability = new AbilityResponse
             {
                 Id = slot.Ability.Id, 
@@ -244,7 +239,8 @@ internal class UsersManager(
 
     public async Task<Result<SlotResponse>> UpdateSlot(Guid id, Guid userId, SlotRequest request, Guid requestUserId)
     {
-        //todo жду поддтверждения======================================================================================================================================================================================================================================
+        throw new NotImplementedException();
+        //todo
     }
 
     public async Task<Result<UserResponse>> UpdateUser(Guid id, UpdateUserRequest request, Guid requestUserId)
