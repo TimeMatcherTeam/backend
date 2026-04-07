@@ -282,8 +282,8 @@ internal class UsersManager(
         if (requestUserId != id)
             return Result.Fail(AppError.Forbidden("Нельзя редактировать не себя"));
         var user = await userManager.FindByIdAsync(id.ToString());
-        user.UserName = request.UserName ?? user.UserName;
-        user.Email = request.Email ?? user.Email;
+        user.UserName = request.UserName;
+        user.Email = request.Email;
 
         var result = await userManager.UpdateAsync(user);
         if (!result.Succeeded)
