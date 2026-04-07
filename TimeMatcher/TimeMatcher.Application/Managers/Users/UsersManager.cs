@@ -239,8 +239,42 @@ internal class UsersManager(
 
     public async Task<Result<SlotResponse>> UpdateSlot(Guid id, Guid userId, SlotRequest request, Guid requestUserId)
     {
-        throw new NotImplementedException();
-        //todo
+        if (userId != requestUserId)
+            return Result.Fail(AppError.Forbidden());
+
+        if(request.EndTime<= request.StartTime)
+            return Result.Fail(AppError.UnprocessableContent());
+
+        var user = await userRepository.Get(userId);
+        if (user is null)
+            return Result.Fail(AppError.NotFound("пользователь не найден"));
+
+        var ability = abilitiesRepository.GetAll().Where(ability => ability.Id == request.AbilityId).FirstOrDefault();
+        if (ability is null)
+            return Result.Fail(AppError.NotFound("доступность не найдена"));
+
+        var slot = user.Calendar.Slots.FirstOrDefault(slot=> slot.Id == id);
+        if (slot is null)
+            return Result.Fail(AppError.NotFound("слот не найден"));
+
+        slot.StartTime = request.StartTime;
+        slot.EndTime = request.EndTime;
+        slot.Comment = request.Comment;
+        slot.Ability = ability;
+
+        return Result.Ok(new SlotResponse
+        {
+            Id = slot.Id,
+            StartTime = slot.StartTime,
+            EndTime = slot.EndTime,
+            Comment = slot.Comment,
+            Ability = new AbilityResponse
+            {
+                Id = slot.Ability.Id, 
+                Ability = slot.Ability.Name
+            },
+            MeetingId = slot.Meeting?.Id
+        });
     }
 
     public async Task<Result<UserResponse>> UpdateUser(Guid id, UpdateUserRequest request, Guid requestUserId)
