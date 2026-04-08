@@ -17,7 +17,7 @@ internal class SlotConfiguration: IEntityTypeConfiguration<Slot>
             .IsRequired();
         builder
             .Property(s => s.Comment)
-            .HasMaxLength(60);
+            .HasMaxLength(255);
 
         builder
             .HasOne(s => s.Ability)

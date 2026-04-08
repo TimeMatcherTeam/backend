@@ -11,7 +11,7 @@ public class Calendar
     public IReadOnlyList<Slot> Slots => slots.AsReadOnly();
     private List<Slot> slots = [];
     
-    public Slot AddSlot(DateTime start, DateTime end, string comment, Ability ability, Meeting? meeting)
+    public Slot AddSlot(DateTime start, DateTime end, string? comment, Ability ability, Meeting? meeting)
     {
         var slot = new Slot
         {

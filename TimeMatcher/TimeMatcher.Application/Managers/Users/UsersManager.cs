@@ -14,7 +14,7 @@ using TimeMatcher.Domain.Enums;
 using TimeMatcher.Domain.GroupAggregate;
 using TimeMatcher.Domain.MeetingAggregate;
 using TimeMatcher.Domain.UserAggregate;
-using UserManagerNotOur = Microsoft.AspNetCore.Identity.UserManager<TimeMatcher.Domain.UserAggregate.User>;
+
 
 namespace TimeMatcher.Application.Managers.Users;
 
@@ -70,26 +70,32 @@ internal class UsersManager(
         if (user is null)
             return Result.Fail(AppError.NotFound());
 
-        return Result.Ok(await groupsRepository.GetAll()
-            .Where(group => group.GroupParticipants.Any(participant => participant.Id == id))
-            .Select(group => new GroupResponse
+        var groups = await groupsRepository.GetAll()
+            .Where(group => group.GroupParticipants.Any(p => p.UserId == id))
+            .ToListAsync();
+
+        var allUserIds = groups
+            .SelectMany(g => g.GroupParticipants.Select(p => p.UserId))
+            .Distinct();
+
+        var users = await userRepository.GetUsersByIds(allUserIds);
+        var usersDictionary = users.ToDictionary(u => u.Id);
+
+        return Result.Ok(groups.Select(group => new GroupResponse
+        {
+            Id = group.Id,
+            Name = group.Name,
+            Participants = group.GroupParticipants.Select(gp =>
             {
-                Id = group.Id,
-                Name = group.Name,
-                Participants = group.GroupParticipants.Select(gp =>
-                    new GroupParticipantResponse
-                    {
-                        UserId = gp.UserId,
-                        UserName = userRepository.GetAll()
-                            .Where(u => u.Id == gp.UserId)
-                            .FirstOrDefault().UserName,
-                        Email = userRepository.GetAll()
-                            .Where(u => u.Id == gp.UserId)
-                            .FirstOrDefault().Email
-                    }
-                ).ToArray()
-            })
-            .ToArrayAsync());
+                var participant = usersDictionary[gp.UserId];
+                return new GroupParticipantResponse
+                {
+                    UserId = participant.Id,
+                    UserName = participant.UserName,
+                    Email = participant.Email
+                };
+            }).ToArray()
+        }).ToArray());
 }
 
     public async Task<Result<MeetingResponse[]>> GetUserMeetings(Guid id, Guid requestUserId)
@@ -101,30 +107,36 @@ internal class UsersManager(
         if (user is null)
             return Result.Fail(AppError.NotFound());
 
-        return Result.Ok(await meetingsRepository.GetAll()
-            .Where(meeting => meeting.MeetingParticipants.Any(participant => participant.Id == id))
-            .Select(meeting => new MeetingResponse
+        var meetings = await meetingsRepository.GetAll()
+            .Where(meeting => meeting.MeetingParticipants.Any(p => p.UserId == id))
+            .ToListAsync();
+
+        var allUserIds = meetings
+            .SelectMany(m => m.MeetingParticipants.Select(p => p.UserId))
+            .Distinct();
+
+        var users = await userRepository.GetUsersByIds(allUserIds);
+        var usersDictionary = users.ToDictionary(u => u.Id);
+
+        return Result.Ok(meetings.Select(meeting => new MeetingResponse
+        {
+            Id = meeting.Id,
+            Name = meeting.Name,
+            StartTime = meeting.StartTime,
+            EndTime = meeting.EndTime,
+            Link = meeting.Link,
+            Comment = meeting.Comment,
+            Participants = meeting.MeetingParticipants.Select(mp =>
             {
-                Id = meeting.Id,
-                Name = meeting.Name,
-                StartTime = meeting.StartTime,
-                EndTime = meeting.EndTime,
-                Link = meeting.Link,
-                Comment = meeting.Comment,
-                Participants = meeting.MeetingParticipants.Select(mt =>
-                    new MeetingParticipantResponse
-                    {
-                        UserId = mt.UserId,
-                        UserName = userRepository.GetAll()
-                            .Where(u => u.Id == mt.UserId)
-                            .FirstOrDefault().UserName,
-                        Email = userRepository.GetAll()
-                            .Where(u => u.Id == mt.UserId)
-                            .FirstOrDefault().Email
-                    }
-                ).ToArray()
-            })
-            .ToArrayAsync());
+                var participant = usersDictionary[mp.UserId];
+                return new MeetingParticipantResponse
+                {
+                    UserId = participant.Id,
+                    UserName = participant.UserName,
+                    Email = participant.Email
+                };
+            }).ToArray()
+        }).ToArray());
     }
 
     public async Task<Result<CalendarResponse>> GetUserCalendar(Guid id, RequestedPeriod period, Guid requestUserId)
@@ -170,36 +182,28 @@ internal class UsersManager(
         if(request.RequestedPeriod.End<request.RequestedPeriod.Start)
             return Result.Fail(AppError.UnprocessableContent());
 
-        var slots = new List<SlotResponse>();
+        var users = await userRepository.GetUsersByIds(request.UserIds);
 
-        foreach(var id in request.UserIds)
-        {
-            var user = await userRepository.Get(id);
-            if (user is null)
-                return Result.Fail(AppError.NotFound());
-            slots.AddRange(user.Calendar.Slots
-                .Where(slot => slot.EndTime >= request.RequestedPeriod.Start && slot.StartTime <= request.RequestedPeriod.End)
-                .Select(slot => new SlotResponse
+        var slots = users.SelectMany(user => user.Calendar.Slots
+            .Where(slot => slot.EndTime >= request.RequestedPeriod.Start && slot.StartTime <= request.RequestedPeriod.End)
+            .Select(slot => new SlotResponse
+            {
+                Id = slot.Id,
+                StartTime = slot.StartTime,
+                EndTime = slot.EndTime,
+                Comment = slot.Comment,
+                Ability = new AbilityResponse
                 {
-                    Id = slot.Id,
-                    StartTime = slot.StartTime,
-                    EndTime = slot.EndTime,
-                    Comment = slot.Comment,
-                    Ability = new AbilityResponse
-                    {
-                        Id = slot.Ability.Id, 
-                        Ability = slot.Ability.Name
-                    },
-                    MeetingId = slot.Meeting?.Id
-
-                })
-            );
-        }
+                    Id = slot.Ability.Id,
+                    Ability = slot.Ability.Name
+                },
+                MeetingId = slot.Meeting?.Id
+            })).ToArray();
 
         return Result.Ok(new CalendarResponse
         {
             RequestedPeriod = request.RequestedPeriod,
-            Slots = slots.ToArray()
+            Slots = slots
         });
     }
 
@@ -215,12 +219,14 @@ internal class UsersManager(
         if (user is null)
             return Result.Fail(AppError.NotFound("пользователь не найден"));
 
-        var ability = abilitiesRepository.GetAll().Where(ability => ability.Id == request.AbilityId).FirstOrDefault();
+        var ability = await abilitiesRepository.GetAll().Where(ability => ability.Id == request.AbilityId).FirstOrDefaultAsync();
         if (ability is null)
             return Result.Fail(AppError.NotFound("доступность не найдена"));
 
 
         var slot = user.Calendar.AddSlot(request.StartTime,request.EndTime,request.Comment,ability,null);
+
+        await userRepository.SaveChanges();
 
         return Result.Ok(new SlotResponse
         {
@@ -249,7 +255,7 @@ internal class UsersManager(
         if (user is null)
             return Result.Fail(AppError.NotFound("пользователь не найден"));
 
-        var ability = abilitiesRepository.GetAll().Where(ability => ability.Id == request.AbilityId).FirstOrDefault();
+        var ability = await abilitiesRepository.GetAll().Where(ability => ability.Id == request.AbilityId).FirstOrDefaultAsync();
         if (ability is null)
             return Result.Fail(AppError.NotFound("доступность не найдена"));
 
@@ -261,6 +267,8 @@ internal class UsersManager(
         slot.EndTime = request.EndTime;
         slot.Comment = request.Comment;
         slot.Ability = ability;
+
+        await userRepository.SaveChanges();
 
         return Result.Ok(new SlotResponse
         {
@@ -327,6 +335,8 @@ internal class UsersManager(
             return Result.Fail(AppError.NotFound("слот не найден"));
 
         user.Calendar.RemoveSlot(id);
+
+        await userRepository.SaveChanges();
         
         return Result.Ok();
     }
