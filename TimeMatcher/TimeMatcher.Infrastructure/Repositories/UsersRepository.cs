@@ -7,26 +7,52 @@ internal class UsersRepository(AppDbContext context): IUsersRepository
 {
     public async Task<User?> Get(Guid id)
     {
-        return await context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return await context.Users
+            .Include(u => u.Calendar)
+                .ThenInclude(c => c.Slots)
+                    .ThenInclude(s => s.Ability)
+            .Include(u => u.Calendar)
+                .ThenInclude(c => c.Slots)
+                    .ThenInclude(s => s.Meeting)
+            .FirstOrDefaultAsync(u => u.Id == id);
     } 
 
     public IQueryable<User> GetAll()
     {
-        throw new NotImplementedException();
+        return context.Users
+            .Include(u => u.Calendar)
+                .ThenInclude(c => c.Slots)
+                    .ThenInclude(s => s.Ability)
+            .Include(u => u.Calendar)
+                .ThenInclude(c => c.Slots)
+                    .ThenInclude(s => s.Meeting);
+
     }
 
     public async Task<User[]> GetUsersByIds(IEnumerable<Guid> ids)
     {
-        throw new NotImplementedException();
+        return await context.Users
+            .Include(u => u.Calendar)
+                .ThenInclude(c => c.Slots)
+                    .ThenInclude(s => s.Ability)
+            .Include(u => u.Calendar)
+                .ThenInclude(c => c.Slots)
+                    .ThenInclude(s => s.Meeting)
+            .Where(u => ids.Contains(u.Id))
+            .ToArrayAsync();
     }
 
     public async Task<Calendar> GetCalendarWithFilteredSlots(Guid userId, DateTime start, DateTime end)
     {
-        throw new NotImplementedException();
+        return await context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.Calendar)
+            .Include(c => c.Slots.Where(s => s.EndTime >= start && s.StartTime <= end))
+            .FirstOrDefaultAsync();
     }
 
     public async Task SaveChanges()
     {
-        throw new NotImplementedException();
+       await context.SaveChangesAsync();
     }
 }

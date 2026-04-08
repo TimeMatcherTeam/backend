@@ -35,7 +35,7 @@ internal class UsersManager(
         var users = await userRepository.GetAll()
             .Where(user => 
                 (request.Email == null && request.UserName == null) || 
-                (user.UserName == request.UserName || user.Email == request.Email))
+                user.UserName == request.UserName || user.Email == request.Email)
             .Select(user => new UserResponse
             {
                 Id = user.Id,
@@ -154,8 +154,7 @@ internal class UsersManager(
         return Result.Ok(new CalendarResponse
         {
             RequestedPeriod = period,
-            Slots = user.Calendar.Slots
-                .Where(slot => slot.EndTime >= period.Start && slot.StartTime <= period.End)
+            Slots = (await userRepository.GetCalendarWithFilteredSlots(user.Id,period.Start,period.End)).Slots
                 .Select(slot => new SlotResponse
                 {
                     Id = slot.Id,
@@ -184,7 +183,11 @@ internal class UsersManager(
 
         var users = await userRepository.GetUsersByIds(request.UserIds);
 
-        var slots = users.SelectMany(user => user.Calendar.Slots
+        var calendars = await Task.WhenAll(
+            request.UserIds.Select(id => userRepository.GetCalendarWithFilteredSlots(id, request.RequestedPeriod.Start, request.RequestedPeriod.End))
+        );
+
+        var slots = calendars.SelectMany(calendar =>calendar.Slots
             .Where(slot => slot.EndTime >= request.RequestedPeriod.Start && slot.StartTime <= request.RequestedPeriod.End)
             .Select(slot => new SlotResponse
             {
