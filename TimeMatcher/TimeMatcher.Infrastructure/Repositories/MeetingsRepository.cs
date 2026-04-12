@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TimeMatcher.Domain;
 using TimeMatcher.Domain.MeetingAggregate;
 
 namespace TimeMatcher.Infrastructure.Repositories;
@@ -27,8 +28,5 @@ internal class MeetingsRepository(AppDbContext context) : IMeetingsRepository
         return context.Meetings.Include(m => m.MeetingParticipants);
     }
 
-    public async Task SaveChanges()
-    {
-        await context.SaveChangesAsync();
-    }
+    public IUnitOfWork UnitOfWork => context;
 }

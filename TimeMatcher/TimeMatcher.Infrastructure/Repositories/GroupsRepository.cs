@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TimeMatcher.Domain;
 using TimeMatcher.Domain.GroupAggregate;
 
 namespace TimeMatcher.Infrastructure.Repositories;
@@ -26,8 +27,5 @@ internal class GroupsRepository(AppDbContext context) : IGroupsRepository
         context.Groups.Remove(group);
     }
 
-    public async Task SaveChanges()
-    {
-        await context.SaveChangesAsync();
-    }
+    public IUnitOfWork UnitOfWork => context;
 }

@@ -1,9 +1,7 @@
 using FluentResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeMatcher.Application.Errors;
-using TimeMatcher.Application.Managers.Meetings;
 using TimeMatcher.Application.Models.Requests.User;
 using TimeMatcher.Application.Models.Responses;
 using TimeMatcher.Application.Models.Responses.Group;
@@ -175,7 +173,7 @@ internal class UsersManager(
 
     public async Task<Result<CalendarResponse>> GetMergedCalendar(GetMergedCalendarRequest request, Guid requestUserId)
     {
-        if(!request.UserIds.Any(id => id == requestUserId))
+        if(request.UserIds.All(id => id != requestUserId))
             return Result.Fail(AppError.Forbidden());
 
         if(request.RequestedPeriod.End<request.RequestedPeriod.Start)
@@ -220,16 +218,16 @@ internal class UsersManager(
 
         var user = await userRepository.Get(userId);
         if (user is null)
-            return Result.Fail(AppError.NotFound("пользователь не найден"));
+            return Result.Fail(AppError.UnprocessableContent("пользователь не найден"));
 
         var ability = await abilitiesRepository.GetAll().Where(ability => ability.Id == request.AbilityId).FirstOrDefaultAsync();
         if (ability is null)
-            return Result.Fail(AppError.NotFound("доступность не найдена"));
+            return Result.Fail(AppError.UnprocessableContent("доступность не найдена"));
 
 
         var slot = user.Calendar.AddSlot(request.StartTime,request.EndTime,request.Comment,ability,null);
 
-        await userRepository.SaveChanges();
+        await userRepository.UnitOfWork.SaveChangesAsync();
 
         return Result.Ok(new SlotResponse
         {
@@ -256,11 +254,11 @@ internal class UsersManager(
 
         var user = await userRepository.Get(userId);
         if (user is null)
-            return Result.Fail(AppError.NotFound("пользователь не найден"));
+            return Result.Fail(AppError.UnprocessableContent("пользователь не найден"));
 
         var ability = await abilitiesRepository.GetAll().Where(ability => ability.Id == request.AbilityId).FirstOrDefaultAsync();
         if (ability is null)
-            return Result.Fail(AppError.NotFound("доступность не найдена"));
+            return Result.Fail(AppError.UnprocessableContent("доступность не найдена"));
 
         var slot = user.Calendar.Slots.FirstOrDefault(slot=> slot.Id == id);
         if (slot is null)
@@ -271,7 +269,7 @@ internal class UsersManager(
         slot.Comment = request.Comment;
         slot.Ability = ability;
 
-        await userRepository.SaveChanges();
+        await userRepository.UnitOfWork.SaveChangesAsync();
 
         return Result.Ok(new SlotResponse
         {
@@ -339,7 +337,7 @@ internal class UsersManager(
 
         user.Calendar.RemoveSlot(id);
 
-        await userRepository.SaveChanges();
+        await userRepository.UnitOfWork.SaveChangesAsync();
         
         return Result.Ok();
     }

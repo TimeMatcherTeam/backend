@@ -1,3 +1,4 @@
+using TimeMatcher.Domain;
 using TimeMatcher.Domain.AbilityAggregate;
 
 namespace TimeMatcher.Infrastructure.Repositories;
@@ -8,4 +9,6 @@ internal class AbilitiesRepository(AppDbContext context) : IAbilitiesRepository
     {
         return context.Abilities;
     }
+
+    public IUnitOfWork UnitOfWork => context;
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TimeMatcher.Domain;
 using TimeMatcher.Domain.UserAggregate;
 
 namespace TimeMatcher.Infrastructure.Repositories;
@@ -51,8 +52,5 @@ internal class UsersRepository(AppDbContext context): IUsersRepository
             .FirstOrDefaultAsync();
     }
 
-    public async Task SaveChanges()
-    {
-       await context.SaveChangesAsync();
-    }
+    public IUnitOfWork UnitOfWork => context;
 }

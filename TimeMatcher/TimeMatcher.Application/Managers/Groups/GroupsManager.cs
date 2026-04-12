@@ -9,14 +9,17 @@ using TimeMatcher.Domain.UserAggregate;
 
 namespace TimeMatcher.Application.Managers.Groups;
 
-internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepository usersRepository): IGroupsManager
+internal class GroupsManager(
+    IGroupsRepository groupsRepository, 
+    IUsersRepository usersRepository
+    ): IGroupsManager
 {
     
     public async Task<Result<GroupResponse>> GetGroupById(Guid id, Guid requestUserId)
     {
         var group = await groupsRepository.Get(id);
         if (group is null) return Result.Fail(AppError.NotFound());
-        if (!group.GroupParticipants.Any(gp => gp.UserId == requestUserId)) return Result.Fail(AppError.Forbidden());
+        if (group.GroupParticipants.All(gp => gp.UserId != requestUserId)) return Result.Fail(AppError.Forbidden());
         var userIds = group.GroupParticipants.Select(gp => gp.UserId);
         var users = await usersRepository.GetUsersByIds(userIds);
         var usersDictionary = users.ToDictionary(u => u.Id);
@@ -59,7 +62,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
         }
 
         await groupsRepository.Create(group);
-        await groupsRepository.SaveChanges();
+        await groupsRepository.UnitOfWork.SaveChangesAsync();
 
         return Result.Ok(new GroupResponse
         {
@@ -92,7 +95,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
             return Result.Fail(AppError.Forbidden());
 
         group.Name = request.Name;
-        await groupsRepository.SaveChanges();
+        await groupsRepository.UnitOfWork.SaveChangesAsync();
 
         var usersIds = group.GroupParticipants.Select(m => m.UserId);
         var users = await usersRepository.GetUsersByIds(usersIds);
@@ -125,7 +128,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
             return Result.Fail(AppError.Forbidden());
 
         groupsRepository.Delete(group);
-        await groupsRepository.SaveChanges();
+        await groupsRepository.UnitOfWork.SaveChangesAsync();
         return Result.Ok();
     }
 
@@ -136,7 +139,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
             return Result.Fail(AppError.NotFound("Группа не найдена"));
 
         var requestUser = group.GroupParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
-        if (requestUser== null || requestUser.Role != Role.Organizer)
+        if (requestUser is not { Role: Role.Organizer })
             return Result.Fail(AppError.Forbidden());
         
         var user = await usersRepository.Get(userId);
@@ -147,7 +150,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
             return Result.Fail(AppError.Conflict());
 
         group.AddParticipant(userId,Role.Participant);
-        await groupsRepository.SaveChanges();
+        await groupsRepository.UnitOfWork.SaveChangesAsync();
 
         return Result.Ok(new GroupParticipantResponse
         {
@@ -171,7 +174,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
         if(user is null)
             return Result.Fail(AppError.UnprocessableContent("Человек не найден"));
 
-        if (!group.GroupParticipants.Any(p=> p.UserId == userId))
+        if (group.GroupParticipants.All(p => p.UserId != userId))
             return Result.Fail(AppError.NotFound());
 
         if(requestUser.Role != Role.Organizer)
@@ -180,7 +183,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
                 return Result.Fail(AppError.Forbidden());
             
             group.RemoveParticipant(userId);
-            await groupsRepository.SaveChanges();
+            await groupsRepository.UnitOfWork.SaveChangesAsync();
 
             return Result.Ok();
         }
@@ -189,7 +192,7 @@ internal class GroupsManager(IGroupsRepository groupsRepository, IUsersRepositor
             return Result.Fail(AppError.UnprocessableContent("Нельзя удалять себя"));
 
         group.RemoveParticipant(userId);
-        await groupsRepository.SaveChanges();
+        await groupsRepository.UnitOfWork.SaveChangesAsync();
 
         return Result.Ok();
     }

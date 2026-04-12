@@ -1,20 +1,27 @@
 using FluentResults;
+using Microsoft.EntityFrameworkCore;
 using TimeMatcher.Application.Errors;
 using TimeMatcher.Application.Models.Requests.Meeting;
 using TimeMatcher.Application.Models.Responses.Meeting;
+using TimeMatcher.Domain.AbilityAggregate;
 using TimeMatcher.Domain.MeetingAggregate;
 using TimeMatcher.Domain.UserAggregate;
 using TimeMatcher.Domain.Enums;
 
 namespace TimeMatcher.Application.Managers.Meetings;
 
-internal class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRepository usersRepository): IMeetingsManager
+internal class MeetingsManager(
+    IMeetingsRepository meetingsRepository, 
+    IUsersRepository usersRepository, 
+    IAbilitiesRepository abilitiesRepository
+    ): IMeetingsManager
 {
     public async Task<Result<MeetingResponse>> GetMeetingById(Guid id, Guid requestUserId)
     {
         var meeting = await meetingsRepository.Get(id);
         if (meeting is null) return Result.Fail(AppError.NotFound());
-        if (!meeting.MeetingParticipants.Any(gp => gp.UserId == requestUserId)) return Result.Fail(AppError.Forbidden());
+        if (meeting.MeetingParticipants.All(gp => gp.UserId != requestUserId)) 
+            return Result.Fail(AppError.Forbidden());
         var userIds = meeting.MeetingParticipants.Select(gp => gp.UserId);
         var users = await usersRepository.GetUsersByIds(userIds);
         var usersDictionary = users.ToDictionary(u => u.Id);
@@ -63,13 +70,17 @@ internal class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRep
         if (users.Length != request.ParticipantIds.Length)
             return Result.Fail(AppError.UnprocessableContent("Все участники должны существовать"));
         var usersDictionary = users.ToDictionary(u => u.Id);
+        var busyAbility =
+            await abilitiesRepository.GetAll().FirstOrDefaultAsync(ability => ability.Name.Equals("Busy"));
         foreach (var user in users)
         {
             meeting.AddParticipant(user.Id, user.Id == requestUserId ? Role.Organizer : Role.Participant);
+            user.Calendar.AddSlot(meeting.StartTime, meeting.EndTime, null, busyAbility, meeting);
         }
 
         await meetingsRepository.Create(meeting);
-        await meetingsRepository.SaveChanges();
+        await meetingsRepository.UnitOfWork.SaveChangesAsync();
+        
 
         return Result.Ok(new MeetingResponse
         {
@@ -105,7 +116,7 @@ internal class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRep
 
         meeting.Name = request.Name;
         meeting.Comment = request.Comment;
-        await meetingsRepository.SaveChanges();
+        await meetingsRepository.UnitOfWork.SaveChangesAsync();
 
         var usersIds = meeting.MeetingParticipants.Select(m => m.UserId);
         var users = await usersRepository.GetUsersByIds(usersIds);
@@ -140,7 +151,7 @@ internal class MeetingsManager(IMeetingsRepository meetingsRepository, IUsersRep
         if (requestUser== null || requestUser.Role != Role.Organizer)
             return Result.Fail(AppError.Forbidden());
         meetingsRepository.Delete(meeting);
-        await meetingsRepository.SaveChanges();
+        await meetingsRepository.UnitOfWork.SaveChangesAsync();
         return Result.Ok();
     }
 }

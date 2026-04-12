@@ -1,6 +1,6 @@
 namespace TimeMatcher.Domain.AbilityAggregate;
 
-public interface IAbilitiesRepository
+public interface IAbilitiesRepository: IRepository
 {
     public IQueryable<Ability> GetAll();
 }

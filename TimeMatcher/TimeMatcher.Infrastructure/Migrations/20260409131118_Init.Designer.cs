@@ -5,13 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using TimeMatcher.Infrastructure;
 
 #nullable disable
 
 namespace TimeMatcher.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260404133125_Init")]
+    [Migration("20260409131118_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -270,6 +271,10 @@ namespace TimeMatcher.Infrastructure.Migrations
 
                     b.Property<Guid>("CalendarId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");

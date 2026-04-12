@@ -302,6 +302,7 @@ namespace TimeMatcher.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Comment = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     AbilityId = table.Column<Guid>(type: "uuid", nullable: false),
                     CalendarId = table.Column<Guid>(type: "uuid", nullable: false),
                     MeetingId = table.Column<Guid>(type: "uuid", nullable: true)

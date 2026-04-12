@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TimeMatcher.Domain;
 using TimeMatcher.Domain.AbilityAggregate;
 using TimeMatcher.Domain.GroupAggregate;
 using TimeMatcher.Domain.MeetingAggregate;
 using TimeMatcher.Domain.UserAggregate;
+using TimeMatcher.Infrastructure.Repositories;
 
 namespace TimeMatcher.Infrastructure;
 
-public class AppDbContext : IdentityDbContext<User, UserRole, Guid>
+public class AppDbContext : IdentityDbContext<User, UserRole, Guid>, IUnitOfWork
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     

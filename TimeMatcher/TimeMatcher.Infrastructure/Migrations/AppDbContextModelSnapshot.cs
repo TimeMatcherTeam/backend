@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using TimeMatcher.Infrastructure;
 
 #nullable disable
 
@@ -267,6 +268,10 @@ namespace TimeMatcher.Infrastructure.Migrations
 
                     b.Property<Guid>("CalendarId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
