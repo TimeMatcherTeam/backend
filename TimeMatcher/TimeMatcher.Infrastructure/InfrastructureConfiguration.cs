@@ -17,6 +17,7 @@ public static class InfrastructureConfiguration
             .AddScoped<IGroupsRepository, GroupsRepository>()
             .AddScoped<IMeetingsRepository, MeetingsRepository>()
             .AddScoped<IAbilitiesRepository, AbilitiesRepository>()
+            .AddScoped<ISlotsRepository, SlotsRepository>()
             .AddDbContext<AppDbContext>(options => options.UseNpgsql(manager.GetConnectionString("DefaultConnection")));
     }
 }

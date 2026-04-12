@@ -23,7 +23,8 @@ internal class UsersManager(
     IUsersRepository userRepository,
     IGroupsRepository groupsRepository,
     IMeetingsRepository meetingsRepository,
-    IAbilitiesRepository abilitiesRepository): IUsersManager
+    IAbilitiesRepository abilitiesRepository,
+    ISlotsRepository slotsRepository): IUsersManager
 {
     public async Task<Result<UserResponse[]>> GetUsers(GetUsersRequest request)
     {
@@ -152,7 +153,7 @@ internal class UsersManager(
         return Result.Ok(new CalendarResponse
         {
             RequestedPeriod = period,
-            Slots = (await userRepository.GetCalendarWithFilteredSlots(user.Id,period.Start,period.End)).Slots
+            Slots = (await slotsRepository.GetFilteredByDateTimeSlots(user.Calendar.Id, period.Start,period.End))
                 .Select(slot => new SlotResponse
                 {
                     Id = slot.Id,
@@ -181,12 +182,11 @@ internal class UsersManager(
 
         var users = await userRepository.GetUsersByIds(request.UserIds);
 
-        var calendars = await Task.WhenAll(
-            request.UserIds.Select(id => userRepository.GetCalendarWithFilteredSlots(id, request.RequestedPeriod.Start, request.RequestedPeriod.End))
+        var usersSlots = await Task.WhenAll(
+            users.Select(u => slotsRepository.GetFilteredByDateTimeSlots(u.Calendar.Id, request.RequestedPeriod.Start, request.RequestedPeriod.End))
         );
 
-        var slots = calendars.SelectMany(calendar =>calendar.Slots
-            .Where(slot => slot.EndTime >= request.RequestedPeriod.Start && slot.StartTime <= request.RequestedPeriod.End)
+        var slots = usersSlots.SelectMany(x => x)
             .Select(slot => new SlotResponse
             {
                 Id = slot.Id,
@@ -199,7 +199,7 @@ internal class UsersManager(
                     Ability = slot.Ability.Name
                 },
                 MeetingId = slot.Meeting?.Id
-            })).ToArray();
+            }).ToArray();
 
         return Result.Ok(new CalendarResponse
         {
@@ -224,8 +224,16 @@ internal class UsersManager(
         if (ability is null)
             return Result.Fail(AppError.UnprocessableContent("доступность не найдена"));
 
-
-        var slot = user.Calendar.AddSlot(request.StartTime,request.EndTime,request.Comment,ability,null);
+        var slot = new Slot
+        {
+            StartTime = request.StartTime,
+            EndTime = request.EndTime,
+            Comment = request.Comment,
+            Ability = ability,
+            CalendarId = user.Calendar.Id,
+            Meeting = null
+        };
+        await slotsRepository.Create(slot);
 
         await userRepository.UnitOfWork.SaveChangesAsync();
 
@@ -260,7 +268,7 @@ internal class UsersManager(
         if (ability is null)
             return Result.Fail(AppError.UnprocessableContent("доступность не найдена"));
 
-        var slot = user.Calendar.Slots.FirstOrDefault(slot=> slot.Id == id);
+        var slot = await slotsRepository.GetById(id);
         if (slot is null)
             return Result.Fail(AppError.NotFound("слот не найден"));
 
@@ -332,10 +340,11 @@ internal class UsersManager(
         if (user is null)
             return Result.Fail(AppError.NotFound("пользователь не найден"));
 
-        if(!user.Calendar.Slots.Any(slot => slot.Id == id))
+        var slot = await slotsRepository.GetById(id);
+        if (slot is null)
             return Result.Fail(AppError.NotFound("слот не найден"));
 
-        user.Calendar.RemoveSlot(id);
+        slotsRepository.Delete(slot);
 
         await userRepository.UnitOfWork.SaveChangesAsync();
         

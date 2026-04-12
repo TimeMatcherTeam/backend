@@ -13,7 +13,8 @@ namespace TimeMatcher.Application.Managers.Meetings;
 internal class MeetingsManager(
     IMeetingsRepository meetingsRepository, 
     IUsersRepository usersRepository, 
-    IAbilitiesRepository abilitiesRepository
+    IAbilitiesRepository abilitiesRepository,
+    ISlotsRepository slotsRepository
     ): IMeetingsManager
 {
     public async Task<Result<MeetingResponse>> GetMeetingById(Guid id, Guid requestUserId)
@@ -71,11 +72,21 @@ internal class MeetingsManager(
             return Result.Fail(AppError.UnprocessableContent("Все участники должны существовать"));
         var usersDictionary = users.ToDictionary(u => u.Id);
         var busyAbility =
-            await abilitiesRepository.GetAll().FirstOrDefaultAsync(ability => ability.Name.Equals("Busy"));
+            await abilitiesRepository.GetAll().FirstOrDefaultAsync(ability => ability.Name.Equals("busy"));
         foreach (var user in users)
         {
             meeting.AddParticipant(user.Id, user.Id == requestUserId ? Role.Organizer : Role.Participant);
-            user.Calendar.AddSlot(meeting.StartTime, meeting.EndTime, null, busyAbility, meeting);
+            var slot = new Slot
+            {
+                StartTime = meeting.StartTime,
+                EndTime = meeting.EndTime,
+                Comment = null,
+                Ability = busyAbility,
+                CalendarId = user.Calendar.Id,
+                Meeting = meeting
+            };
+            slotsRepository.Create(slot);
+            //todo
         }
 
         await meetingsRepository.Create(meeting);

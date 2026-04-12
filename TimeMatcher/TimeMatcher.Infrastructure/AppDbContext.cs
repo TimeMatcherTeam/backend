@@ -16,6 +16,7 @@ public class AppDbContext : IdentityDbContext<User, UserRole, Guid>, IUnitOfWork
     public DbSet<Group> Groups => Set<Group>();
     public DbSet<Meeting> Meetings => Set<Meeting>();
     public DbSet<Ability> Abilities => Set<Ability>();
+    public DbSet<Slot> Slots => Set<Slot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

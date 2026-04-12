@@ -295,7 +295,7 @@ namespace TimeMatcher.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Slot",
+                name: "Slots",
                 schema: "time-matcher",
                 columns: table => new
                 {
@@ -309,23 +309,23 @@ namespace TimeMatcher.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Slot", x => x.Id);
+                    table.PrimaryKey("PK_Slots", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Slot_Abilities_AbilityId",
+                        name: "FK_Slots_Abilities_AbilityId",
                         column: x => x.AbilityId,
                         principalSchema: "time-matcher",
                         principalTable: "Abilities",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Slot_Calendar_CalendarId",
+                        name: "FK_Slots_Calendar_CalendarId",
                         column: x => x.CalendarId,
                         principalSchema: "time-matcher",
                         principalTable: "Calendar",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Slot_Meetings_MeetingId",
+                        name: "FK_Slots_Meetings_MeetingId",
                         column: x => x.MeetingId,
                         principalSchema: "time-matcher",
                         principalTable: "Meetings",
@@ -409,21 +409,21 @@ namespace TimeMatcher.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Slot_AbilityId",
+                name: "IX_Slots_AbilityId",
                 schema: "time-matcher",
-                table: "Slot",
+                table: "Slots",
                 column: "AbilityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Slot_CalendarId",
+                name: "IX_Slots_CalendarId",
                 schema: "time-matcher",
-                table: "Slot",
+                table: "Slots",
                 column: "CalendarId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Slot_MeetingId",
+                name: "IX_Slots_MeetingId",
                 schema: "time-matcher",
-                table: "Slot",
+                table: "Slots",
                 column: "MeetingId");
         }
 
@@ -459,7 +459,7 @@ namespace TimeMatcher.Infrastructure.Migrations
                 schema: "time-matcher");
 
             migrationBuilder.DropTable(
-                name: "Slot",
+                name: "Slots",
                 schema: "time-matcher");
 
             migrationBuilder.DropTable(

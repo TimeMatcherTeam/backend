@@ -12,7 +12,7 @@ using TimeMatcher.Infrastructure;
 namespace TimeMatcher.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260409131118_Init")]
+    [Migration("20260412140242_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -293,7 +293,7 @@ namespace TimeMatcher.Infrastructure.Migrations
 
                     b.HasIndex("MeetingId");
 
-                    b.ToTable("Slot", "time-matcher");
+                    b.ToTable("Slots", "time-matcher");
                 });
 
             modelBuilder.Entity("TimeMatcher.Domain.UserAggregate.User", b =>

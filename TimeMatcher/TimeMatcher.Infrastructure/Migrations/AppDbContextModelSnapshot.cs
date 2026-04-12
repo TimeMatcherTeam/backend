@@ -290,7 +290,7 @@ namespace TimeMatcher.Infrastructure.Migrations
 
                     b.HasIndex("MeetingId");
 
-                    b.ToTable("Slot", "time-matcher");
+                    b.ToTable("Slots", "time-matcher");
                 });
 
             modelBuilder.Entity("TimeMatcher.Domain.UserAggregate.User", b =>
