@@ -54,7 +54,7 @@ internal class MeetingsManager(
         if(request.ParticipantIds.Length <= 1) 
             return Result.Fail(AppError.UnprocessableContent("Необходимо хотя бы 2 участника"));
         if(request.StartTime >= request.EndTime) 
-            return Result.Fail(AppError.UnprocessableContent("Начало не может быть позже конца"));
+            return Result.Fail(AppError.UnprocessableContent("Начало не может быть позже или равно концу"));
         if(request.StartTime < DateTime.UtcNow) 
             return Result.Fail(AppError.UnprocessableContent("Нельзя чтобы время начала было раньше чем сейчас"));
 
@@ -70,6 +70,10 @@ internal class MeetingsManager(
         var users = await usersRepository.GetUsersByIds(request.ParticipantIds);
         if (users.Length != request.ParticipantIds.Length)
             return Result.Fail(AppError.UnprocessableContent("Все участники должны существовать"));
+        var userSlots = await slotsRepository.GetFilteredByDateTimeSlotsManyCalendars(
+            users.Select(u => u.Calendar.Id).ToArray(), request.StartTime, request.EndTime);
+        if (userSlots.Length != 0)
+            return Result.Fail(AppError.UnprocessableContent("Не возможно поставить встречу всем участникам, данный промежуток занят у одного из участников"));
         var usersDictionary = users.ToDictionary(u => u.Id);
         var busyAbility =
             await abilitiesRepository.GetAll().FirstOrDefaultAsync(ability => ability.Name.Equals("busy"));
@@ -80,13 +84,12 @@ internal class MeetingsManager(
             {
                 StartTime = meeting.StartTime,
                 EndTime = meeting.EndTime,
-                Comment = null,
+                Title = meeting.Name,
                 Ability = busyAbility,
                 CalendarId = user.Calendar.Id,
                 Meeting = meeting
             };
             slotsRepository.Create(slot);
-            //todo
         }
 
         await meetingsRepository.Create(meeting);
@@ -122,7 +125,7 @@ internal class MeetingsManager(
         if (meeting is null) 
             return Result.Fail(AppError.NotFound());
         var requestUser = meeting.MeetingParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
-        if (requestUser== null || requestUser.Role != Role.Organizer) 
+        if (requestUser is not { Role: Role.Organizer }) 
             return Result.Fail(AppError.Forbidden());
 
         meeting.Name = request.Name;

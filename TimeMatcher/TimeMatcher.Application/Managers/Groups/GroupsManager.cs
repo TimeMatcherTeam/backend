@@ -1,5 +1,4 @@
 using FluentResults;
-using Microsoft.EntityFrameworkCore;
 using TimeMatcher.Application.Errors;
 using TimeMatcher.Application.Models.Requests.Group;
 using TimeMatcher.Application.Models.Responses.Group;
@@ -91,7 +90,7 @@ internal class GroupsManager(
             return Result.Fail(AppError.NotFound());
 
         var requestUser = group.GroupParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
-        if (requestUser== null || requestUser.Role != Role.Organizer) 
+        if (requestUser is not { Role: Role.Organizer }) 
             return Result.Fail(AppError.Forbidden());
 
         group.Name = request.Name;
@@ -124,7 +123,7 @@ internal class GroupsManager(
             return Result.Fail(AppError.NotFound());
 
         var requestUser = group.GroupParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
-        if (requestUser== null || requestUser.Role != Role.Organizer)
+        if (requestUser is not { Role: Role.Organizer })
             return Result.Fail(AppError.Forbidden());
 
         groupsRepository.Delete(group);
@@ -175,7 +174,7 @@ internal class GroupsManager(
             return Result.Fail(AppError.UnprocessableContent("Человек не найден"));
 
         if (group.GroupParticipants.All(p => p.UserId != userId))
-            return Result.Fail(AppError.NotFound());
+            return Result.Fail(AppError.UnprocessableContent("Участник не состоит в группе"));
 
         if(requestUser.Role != Role.Organizer)
         {
@@ -189,7 +188,7 @@ internal class GroupsManager(
         }
 
         if (requestUserId == userId) 
-            return Result.Fail(AppError.UnprocessableContent("Нельзя удалять себя"));
+            return Result.Fail(AppError.UnprocessableContent("Создатель не может покинуть группу"));
 
         group.RemoveParticipant(userId);
         await groupsRepository.UnitOfWork.SaveChangesAsync();

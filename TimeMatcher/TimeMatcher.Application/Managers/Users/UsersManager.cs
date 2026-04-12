@@ -33,15 +33,15 @@ internal class UsersManager(
 
         var users = await userRepository.GetAll()
             .Where(user => 
-                (request.Email == null && request.UserName == null) || 
-                user.UserName == request.UserName || user.Email == request.Email)
+                (request.SearchText == null || 
+                user.UserName.Contains(request.SearchText) || user.Email.Contains(request.SearchText)))
             .Select(user => new UserResponse
             {
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email
             })
-            .Skip(request.Limit * request.Page)
+            .Skip(request.Limit * (request.Page - 1))
             .Take(request.Limit)
             .ToArrayAsync();
         return Result.Ok(users);
@@ -154,12 +154,12 @@ internal class UsersManager(
         {
             RequestedPeriod = period,
             Slots = (await slotsRepository.GetFilteredByDateTimeSlots(user.Calendar.Id, period.Start,period.End))
-                .Select(slot => new SlotResponse
+                .Select(slot => new SlotResponse()
                 {
                     Id = slot.Id,
                     StartTime = slot.StartTime,
                     EndTime = slot.EndTime,
-                    Comment = slot.Comment,
+                    Title = slot.Title,
                     Ability = new AbilityResponse
                     {
                         Id = slot.Ability.Id, 
@@ -172,36 +172,33 @@ internal class UsersManager(
         });
     }
 
-    public async Task<Result<CalendarResponse>> GetMergedCalendar(GetMergedCalendarRequest request, Guid requestUserId)
+    public async Task<Result<MergedCalendarResponse>> GetMergedCalendar(GetMergedCalendarRequest request, Guid requestUserId)
     {
         if(request.UserIds.All(id => id != requestUserId))
             return Result.Fail(AppError.Forbidden());
 
         if(request.RequestedPeriod.End<request.RequestedPeriod.Start)
-            return Result.Fail(AppError.UnprocessableContent());
+            return Result.Fail(AppError.UnprocessableContent("Начало должно быть раньше конца запрашиваемого периода"));
 
         var users = await userRepository.GetUsersByIds(request.UserIds);
 
-        var usersSlots = await Task.WhenAll(
-            users.Select(u => slotsRepository.GetFilteredByDateTimeSlots(u.Calendar.Id, request.RequestedPeriod.Start, request.RequestedPeriod.End))
-        );
+        var usersSlots = await slotsRepository.GetFilteredByDateTimeSlotsManyCalendars(
+            users.Select(u => u.Calendar.Id).ToArray(), request.RequestedPeriod.Start, request.RequestedPeriod.End);
 
-        var slots = usersSlots.SelectMany(x => x)
-            .Select(slot => new SlotResponse
+        var slots = usersSlots
+            .Select(slot => new MergedSlotResponse
             {
                 Id = slot.Id,
                 StartTime = slot.StartTime,
                 EndTime = slot.EndTime,
-                Comment = slot.Comment,
                 Ability = new AbilityResponse
                 {
                     Id = slot.Ability.Id,
                     Ability = slot.Ability.Name
                 },
-                MeetingId = slot.Meeting?.Id
             }).ToArray();
 
-        return Result.Ok(new CalendarResponse
+        return Result.Ok(new MergedCalendarResponse
         {
             RequestedPeriod = request.RequestedPeriod,
             Slots = slots
@@ -214,7 +211,7 @@ internal class UsersManager(
             return Result.Fail(AppError.Forbidden());
 
         if(request.EndTime<= request.StartTime)
-            return Result.Fail(AppError.UnprocessableContent());
+            return Result.Fail(AppError.UnprocessableContent("Начало должно быть раньше конца"));
 
         var user = await userRepository.Get(userId);
         if (user is null)
@@ -223,12 +220,16 @@ internal class UsersManager(
         var ability = await abilitiesRepository.GetAll().Where(ability => ability.Id == request.AbilityId).FirstOrDefaultAsync();
         if (ability is null)
             return Result.Fail(AppError.UnprocessableContent("доступность не найдена"));
+        
+        var userSlots = await slotsRepository.GetFilteredByDateTimeSlots(user.Calendar.Id, request.StartTime, request.EndTime);
+        if (userSlots.Length != 0)
+            return Result.Fail(AppError.UnprocessableContent("В это время уже есть мероприятие"));
 
         var slot = new Slot
         {
             StartTime = request.StartTime,
             EndTime = request.EndTime,
-            Comment = request.Comment,
+            Title = request.Title,
             Ability = ability,
             CalendarId = user.Calendar.Id,
             Meeting = null
@@ -242,7 +243,7 @@ internal class UsersManager(
             Id = slot.Id,
             StartTime = slot.StartTime,
             EndTime = slot.EndTime,
-            Comment = slot.Comment,
+            Title = slot.Title,
             Ability = new AbilityResponse
             {
                 Id = slot.Ability.Id, 
@@ -274,7 +275,7 @@ internal class UsersManager(
 
         slot.StartTime = request.StartTime;
         slot.EndTime = request.EndTime;
-        slot.Comment = request.Comment;
+        slot.Title = request.Title;
         slot.Ability = ability;
 
         await userRepository.UnitOfWork.SaveChangesAsync();
@@ -284,7 +285,7 @@ internal class UsersManager(
             Id = slot.Id,
             StartTime = slot.StartTime,
             EndTime = slot.EndTime,
-            Comment = slot.Comment,
+            Title = slot.Title,
             Ability = new AbilityResponse
             {
                 Id = slot.Ability.Id, 

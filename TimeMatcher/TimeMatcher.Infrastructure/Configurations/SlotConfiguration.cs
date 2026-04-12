@@ -16,7 +16,7 @@ internal class SlotConfiguration: IEntityTypeConfiguration<Slot>
             .Property(s => s.EndTime)
             .IsRequired();
         builder
-            .Property(s => s.Comment)
+            .Property(s => s.Title)
             .HasMaxLength(255);
 
         builder

@@ -13,7 +13,7 @@ public interface IUsersManager
    Task<Result<GroupResponse[]>> GetUserGroups(Guid id, Guid requestUserId);
    Task<Result<MeetingResponse[]>> GetUserMeetings(Guid id, Guid requestUserId);
    Task<Result<CalendarResponse>> GetUserCalendar(Guid id, RequestedPeriod period, Guid requestUserId);
-   Task<Result<CalendarResponse>> GetMergedCalendar(GetMergedCalendarRequest request, Guid requestUserId);
+   Task<Result<MergedCalendarResponse>> GetMergedCalendar(GetMergedCalendarRequest request, Guid requestUserId);
    Task<Result<SlotResponse>> CreateSlot(SlotRequest request, Guid userId,  Guid requestUserId);
    Task<Result<SlotResponse>> UpdateSlot(Guid id, Guid userId, SlotRequest request, Guid requestUserId);
    Task<Result<UserResponse>> UpdateUser(Guid id, UpdateUserRequest request, Guid requestUserId);

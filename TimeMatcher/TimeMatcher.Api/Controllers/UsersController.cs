@@ -101,7 +101,7 @@ public class UsersController(IUsersManager usersManager) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status403Forbidden)]
     [Authorize]
-    public async Task<ActionResult<CalendarResponse>> GetMergedCalendar(
+    public async Task<ActionResult<MergedCalendarResponse>> GetMergedCalendar(
         [FromBody] GetMergedCalendarRequest request, 
         [FromServices] IIdentityService identityService)
     {
