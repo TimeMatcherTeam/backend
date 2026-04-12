@@ -18,7 +18,8 @@ internal class GroupsManager(
     {
         var group = await groupsRepository.Get(id);
         if (group is null) return Result.Fail(AppError.NotFound());
-        if (group.GroupParticipants.All(gp => gp.UserId != requestUserId)) return Result.Fail(AppError.Forbidden());
+        if (group.GroupParticipants.All(gp => gp.UserId != requestUserId)) 
+            return Result.Fail(AppError.Forbidden());
         var userIds = group.GroupParticipants.Select(gp => gp.UserId);
         var users = await usersRepository.GetUsersByIds(userIds);
         var usersDictionary = users.ToDictionary(u => u.Id);

@@ -32,9 +32,9 @@ internal class UsersManager(
             return Result.Fail(AppError.UnprocessableContent());
 
         var users = await userRepository.GetAll()
-            .Where(user => 
-                (request.SearchText == null || 
-                user.UserName.Contains(request.SearchText) || user.Email.Contains(request.SearchText)))
+            .Where(user => request.SearchText == null || 
+                           user.UserName.Contains(request.SearchText) ||
+                           user.Email.Contains(request.SearchText))
             .Select(user => new UserResponse
             {
                 Id = user.Id,

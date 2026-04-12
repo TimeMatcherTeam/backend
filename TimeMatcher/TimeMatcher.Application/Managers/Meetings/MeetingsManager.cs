@@ -162,7 +162,7 @@ internal class MeetingsManager(
         if (meeting is null) 
             return Result.Fail(AppError.NotFound());
         var requestUser = meeting.MeetingParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
-        if (requestUser== null || requestUser.Role != Role.Organizer)
+        if (requestUser is not { Role: Role.Organizer })
             return Result.Fail(AppError.Forbidden());
         meetingsRepository.Delete(meeting);
         await meetingsRepository.UnitOfWork.SaveChangesAsync();
