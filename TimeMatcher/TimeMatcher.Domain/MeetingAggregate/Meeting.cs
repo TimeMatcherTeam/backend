@@ -10,7 +10,6 @@ public class Meeting
     public string Name { get; set; }
     public string? Comment { get; set; }
     public string? Link { get; init; }
-    public DateTime CreatedAt {get; init;}
     public IReadOnlyList<MeetingParticipant> MeetingParticipants => meetingParticipants.AsReadOnly();
     private List<MeetingParticipant> meetingParticipants  = [];
 
