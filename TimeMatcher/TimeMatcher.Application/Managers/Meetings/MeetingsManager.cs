@@ -7,6 +7,7 @@ using TimeMatcher.Domain.AbilityAggregate;
 using TimeMatcher.Domain.MeetingAggregate;
 using TimeMatcher.Domain.UserAggregate;
 using TimeMatcher.Domain.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TimeMatcher.Application.Managers.Meetings;
 
@@ -65,7 +66,8 @@ internal class MeetingsManager(
             Comment = request.Comment,
             Link = null,
             StartTime = request.StartTime,
-            EndTime = request.EndTime
+            EndTime = request.EndTime,
+            CreatedAt = DateTime.Now
         };
         var users = await usersRepository.GetUsersByIds(request.ParticipantIds);
         if (users.Length != request.ParticipantIds.Length)
