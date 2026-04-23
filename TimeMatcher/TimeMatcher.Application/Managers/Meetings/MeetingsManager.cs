@@ -66,18 +66,18 @@ internal class MeetingsManager(
             Link = null,
             StartTime = request.StartTime,
             EndTime = request.EndTime,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
+        var busyAbility =
+            await abilitiesRepository.GetAll().FirstOrDefaultAsync(ability => ability.Name.Equals("busy"));
         var users = await usersRepository.GetUsersByIds(request.ParticipantIds);
         if (users.Length != request.ParticipantIds.Length)
             return Result.Fail(AppError.UnprocessableContent("Все участники должны существовать"));
         var userSlots = await slotsRepository.GetFilteredByDateTimeSlotsManyCalendars(
             users.Select(u => u.Calendar.Id).ToArray(), request.StartTime, request.EndTime);
-        if (userSlots.Length != 0)
+        if (userSlots.Any(s => s.Ability == busyAbility))
             return Result.Fail(AppError.UnprocessableContent("Не возможно поставить встречу всем участникам, данный промежуток занят у одного из участников"));
         var usersDictionary = users.ToDictionary(u => u.Id);
-        var busyAbility =
-            await abilitiesRepository.GetAll().FirstOrDefaultAsync(ability => ability.Name.Equals("busy"));
         foreach (var user in users)
         {
             meeting.AddParticipant(user.Id, user.Id == requestUserId ? Role.Organizer : Role.Participant);

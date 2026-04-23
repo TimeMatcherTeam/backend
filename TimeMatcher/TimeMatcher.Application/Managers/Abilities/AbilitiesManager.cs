@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TimeMatcher.Application.Models.Requests;
 using TimeMatcher.Application.Models.Responses;
 using TimeMatcher.Domain.AbilityAggregate;
 
@@ -13,5 +14,17 @@ internal class AbilitiesManager(IAbilitiesRepository abilitiesRepository): IAbil
             Id = ability.Id,
             Ability = ability.Name
         }).ToArrayAsync();
+    }
+
+    public async Task<AbilityResponse[]> AddAbilities(AbilityRequest[] abilityRequests)
+    {
+        var abilities = abilityRequests.Select(request => new Ability { Name = request.Name }).ToArray();
+        var addedAbilities = await abilitiesRepository.AddRange(abilities);
+        await abilitiesRepository.UnitOfWork.SaveChangesAsync();
+        return addedAbilities.Select(a => new AbilityResponse
+        {
+            Id = a.Id,
+            Ability = a.Name
+        }).ToArray();
     }
 }

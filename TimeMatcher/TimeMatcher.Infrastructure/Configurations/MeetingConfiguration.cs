@@ -24,6 +24,9 @@ public class MeetingConfiguration : IEntityTypeConfiguration<Meeting>
         builder
             .Property(m => m.EndTime)
             .IsRequired();
+        builder
+            .Property(m => m.CreatedAt)
+            .IsRequired();
 
         builder
            .Navigation(g => g.MeetingParticipants)
