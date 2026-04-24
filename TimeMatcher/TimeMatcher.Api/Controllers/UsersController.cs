@@ -96,7 +96,7 @@ public class UsersController(IUsersManager usersManager) : ControllerBase
     /// <summary>
     /// Получить совместный календарь пользователей
     /// </summary>
-    [HttpPost("/merge-calendar")]
+    [HttpPost("merge-calendar")]
     [ProducesResponseType<string>(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status403Forbidden)]
