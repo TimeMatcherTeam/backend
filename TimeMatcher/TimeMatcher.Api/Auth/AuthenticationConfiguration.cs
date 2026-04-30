@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using TimeMatcher.Api.Errors;
 using TimeMatcher.Application.Managers.Users;
 using TimeMatcher.Domain.UserAggregate;
 using TimeMatcher.Infrastructure;
@@ -24,7 +25,8 @@ public static class AuthenticationConfiguration
                 options.SignIn.RequireConfirmedAccount = false;
             })
             .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddErrorDescriber<RussianIdentityErrorDescriber>();
 
         services
             .AddAuthentication(options =>
