@@ -33,8 +33,8 @@ internal class UsersManager(
 
         var users = await userRepository.GetAll()
             .Where(user => request.SearchText == null || 
-                           user.UserName.Contains(request.SearchText) ||
-                           user.Email.Contains(request.SearchText))
+                           user.UserName.ToLower().Contains(request.SearchText.ToLower()) ||
+                           user.Email.ToLower().Contains(request.SearchText.ToLower()))
             .Select(user => new UserResponse
             {
                 Id = user.Id,
