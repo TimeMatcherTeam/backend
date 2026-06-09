@@ -41,7 +41,8 @@ internal class MeetingsManager(
                 {
                     UserId = user.Id,
                     UserName = user.UserName,
-                    Email = user.Email
+                    Email = user.Email,
+                    Role = gp.Role
                 };
             }).ToArray()
         });
@@ -112,7 +113,8 @@ internal class MeetingsManager(
                 {
                     UserId = user.Id,
                     UserName = user.UserName,
-                    Email = user.Email
+                    Email = user.Email,
+                    Role = gp.Role
                 };
             }).ToArray()
         });
@@ -151,7 +153,8 @@ internal class MeetingsManager(
                 {
                     UserId = user.Id,
                     UserName = user.UserName,
-                    Email = user.Email
+                    Email = user.Email,
+                    Role = gp.Role
                 };
             }).ToArray()
         });

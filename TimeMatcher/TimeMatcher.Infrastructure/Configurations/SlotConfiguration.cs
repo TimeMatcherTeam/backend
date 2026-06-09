@@ -29,7 +29,7 @@ internal class SlotConfiguration: IEntityTypeConfiguration<Slot>
             .HasOne(s => s.Meeting)
             .WithMany()
             .HasForeignKey("MeetingId")
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

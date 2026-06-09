@@ -91,7 +91,8 @@ internal class UsersManager(
                 {
                     UserId = participant.Id,
                     UserName = participant.UserName,
-                    Email = participant.Email
+                    Email = participant.Email,
+                    Role = gp.Role,
                 };
             }).ToArray()
         }).ToArray());
@@ -132,7 +133,8 @@ internal class UsersManager(
                 {
                     UserId = participant.Id,
                     UserName = participant.UserName,
-                    Email = participant.Email
+                    Email = participant.Email,
+                    Role = mp.Role
                 };
             }).ToArray()
         }).ToArray());
