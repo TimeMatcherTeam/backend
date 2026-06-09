@@ -21,9 +21,9 @@ internal class MeetingsManager(
     {
         var meeting = await meetingsRepository.Get(id);
         if (meeting is null) return Result.Fail(AppError.NotFound());
-        if (meeting.MeetingParticipants.All(gp => gp.UserId != requestUserId)) 
+        if (meeting.MeetingParticipants.All(mp => mp.UserId != requestUserId)) 
             return Result.Fail(AppError.Forbidden());
-        var userIds = meeting.MeetingParticipants.Select(gp => gp.UserId);
+        var userIds = meeting.MeetingParticipants.Select(mp => mp.UserId);
         var users = await usersRepository.GetUsersByIds(userIds);
         var usersDictionary = users.ToDictionary(u => u.Id);
         return Result.Ok(new MeetingResponse
@@ -34,15 +34,15 @@ internal class MeetingsManager(
             Link = meeting.Link,
             StartTime = meeting.StartTime,
             EndTime = meeting.EndTime,
-            Participants = meeting.MeetingParticipants.Select(gp =>
+            Participants = meeting.MeetingParticipants.Select(mp =>
             {
-                var user = usersDictionary[gp.UserId];
+                var user = usersDictionary[mp.UserId];
                 return new MeetingParticipantResponse
                 {
                     UserId = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
-                    Role = gp.Role
+                    Role = mp.Role
                 };
             }).ToArray()
         });
@@ -106,15 +106,15 @@ internal class MeetingsManager(
             Link = meeting.Link,
             StartTime = meeting.StartTime,
             EndTime = meeting.EndTime,
-            Participants = meeting.MeetingParticipants.Select(gp =>
+            Participants = meeting.MeetingParticipants.Select(mp =>
             {
-                var user = usersDictionary[gp.UserId];
+                var user = usersDictionary[mp.UserId];
                 return new MeetingParticipantResponse
                 {
                     UserId = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
-                    Role = gp.Role
+                    Role = mp.Role
                 };
             }).ToArray()
         });
@@ -127,7 +127,7 @@ internal class MeetingsManager(
         var meeting = await meetingsRepository.Get(id);
         if (meeting is null) 
             return Result.Fail(AppError.NotFound());
-        var requestUser = meeting.MeetingParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
+        var requestUser = meeting.MeetingParticipants.FirstOrDefault(mp => mp.UserId == requestUserId);
         if (requestUser is not { Role: Role.Organizer }) 
             return Result.Fail(AppError.Forbidden());
 
@@ -146,15 +146,15 @@ internal class MeetingsManager(
             Link = meeting.Link,
             StartTime = meeting.StartTime,
             EndTime = meeting.EndTime,
-            Participants = meeting.MeetingParticipants.Select(gp =>
+            Participants = meeting.MeetingParticipants.Select(mp =>
             {
-                var user = usersDictionary[gp.UserId];
+                var user = usersDictionary[mp.UserId];
                 return new MeetingParticipantResponse
                 {
                     UserId = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
-                    Role = gp.Role
+                    Role = mp.Role
                 };
             }).ToArray()
         });
@@ -165,7 +165,7 @@ internal class MeetingsManager(
         var meeting = await meetingsRepository.Get(id);
         if (meeting is null) 
             return Result.Fail(AppError.NotFound());
-        var requestUser = meeting.MeetingParticipants.FirstOrDefault(gp => gp.UserId == requestUserId);
+        var requestUser = meeting.MeetingParticipants.FirstOrDefault(mp => mp.UserId == requestUserId);
         if (requestUser is not { Role: Role.Organizer })
             return Result.Fail(AppError.Forbidden());
         meetingsRepository.Delete(meeting);
