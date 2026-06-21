@@ -14,6 +14,13 @@ internal class SlotsRepository(AppDbContext context): ISlotsRepository
             .Include(s => s.Meeting)
             .FirstOrDefaultAsync(s => s.Id == slotId);
     }
+    
+    public Task<Slot[]> GetByMeetingId(Guid meetingId)
+    {
+        return context.Slots
+            .Where(s => s.Meeting != null && s.Meeting.Id == meetingId)
+            .ToArrayAsync();
+    }
 
     public Task<Slot[]> GetFilteredByDateTimeSlots(Guid calendarId, DateTime start, DateTime end)
     {

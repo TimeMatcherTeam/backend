@@ -133,6 +133,9 @@ internal class MeetingsManager(
 
         meeting.Name = request.Name;
         meeting.Comment = request.Comment;
+        var slots = await slotsRepository.GetByMeetingId(id);
+        foreach (var slot in slots)
+            slot.Title = request.Name;
         await meetingsRepository.UnitOfWork.SaveChangesAsync();
 
         var usersIds = meeting.MeetingParticipants.Select(m => m.UserId);
